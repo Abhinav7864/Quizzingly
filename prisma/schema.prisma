@@ -19,4 +19,31 @@ model User {
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
+  quizzes   Quiz[]
+}
+
+model Quiz {
+  id        String     @id @default(uuid())
+  title     String
+  creatorId String
+  creator   User       @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  questions Question[]
+  createdAt DateTime   @default(now())
+}
+
+model Question {
+  id        String   @id @default(uuid())
+  text      String
+  timeLimit Int      @default(20)
+  quizId    String
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  options   Option[]
+}
+
+model Option {
+  id         String   @id @default(uuid())
+  text       String
+  isCorrect  Boolean  @default(false)
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 }
