@@ -42,7 +42,10 @@ export const handleSubmitAnswer = (socket) => {
     // One answer per question
     if (game.answers[socket.id]) return;
 
-    game.answers[socket.id] = optionId;
+    game.answers[socket.id] = {
+      optionId,
+      timestamp: Date.now()
+    };
 
     socket.emit("server:answer_received");
     console.log(`[ANSWER] Player ${socket.id} answered in ${gameCode}`);

@@ -41,7 +41,7 @@ socket.on("server:new_question", (q) => {
     console.log(`  [${idx + 1}] ${opt.text} (ID: ${opt.id})`);
   });
   console.log("--------------------------------");
-  console.log("Enter Option ID (copy from above) or index (1-4) to answer:");
+  console.log("Enter Option ID (copy from above) or index (1-4) to answer:"); 
   
   const answerListener = (input) => {
       let ans = input.trim();
@@ -71,12 +71,36 @@ socket.on("server:times_up", () => {
   console.log("\nTime's Up!");
 });
 
+socket.on("server:leaderboard_update", (leaderboard) => {
+  console.log("\n--- Current Leaderboard ---");
+  leaderboard.forEach((p, idx) => {
+    console.log(`${idx + 1}. ${p.name}: ${p.score} pts`);
+  });
+  console.log("---------------------------");
+});
+
 socket.on("server:answer_received", () => {
     console.log("Server confirmed receipt of answer.");
 });
 
-socket.on("server:game_over", () => {
+socket.on("server:answer_result", (result) => {
+  if (result.correct) {
+    console.log(`\n[RESULT] CORRECT! +${result.scoreGained} pts (Total: ${result.totalScore})`);
+  } else {
+    console.log(`\n[RESULT] WRONG! +0 pts (Total: ${result.totalScore})`);
+  }
+});
+
+socket.on("server:game_over", (leaderboard) => {
   console.log("\nGAME OVER");
+  console.log("Final Leaderboard:");
+  if (leaderboard && Array.isArray(leaderboard)) {
+    leaderboard.forEach((p, idx) => {
+      console.log(`${idx + 1}. ${p.name}: ${p.score} pts`);
+    });
+  } else {
+    console.log("No leaderboard data received.");
+  }
   socket.disconnect();
   process.exit(0);
 });

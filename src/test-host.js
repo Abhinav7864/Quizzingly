@@ -8,7 +8,7 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-const QUIZ_ID = "4e72a1f2-2494-41b5-b7cc-8ca9d36e462c"; // Valid ID fetched from DB
+const QUIZ_ID = "fe743d09-2949-4df5-89b6-d8041e386a73"; // Valid ID fetched from DB
 let myGameCode = null;
 
 socket.on("connect", () => {
@@ -47,6 +47,14 @@ socket.on("server:times_up", () => {
   console.log("\n[HOST] Time's Up!");
 });
 
+socket.on("server:leaderboard_update", (leaderboard) => {
+  console.log("\n--- Current Leaderboard ---");
+  leaderboard.forEach((p, idx) => {
+    console.log(`${idx + 1}. ${p.name}: ${p.score} pts`);
+  });
+  console.log("---------------------------");
+});
+
 socket.on("server:question_ended", () => {
   console.log("[HOST] Question ended.");
   console.log("Press ENTER to send next question.");
@@ -58,8 +66,16 @@ socket.on("server:question_ended", () => {
   });
 });
 
-socket.on("server:game_over", () => {
+socket.on("server:game_over", (leaderboard) => {
   console.log("\n[HOST] Game Over!");
+  console.log("Final Leaderboard:");
+  if (leaderboard && Array.isArray(leaderboard)) {
+    leaderboard.forEach((p, idx) => {
+      console.log(`${idx + 1}. ${p.name}: ${p.score} pts`);
+    });
+  } else {
+    console.log("No leaderboard data received.");
+  }
   socket.disconnect();
   process.exit(0);
 });
