@@ -1,15 +1,16 @@
-import { handleCreateGame } from "./host.handlers.js";
-import { handleJoinGame } from "./player.handlers.js";
+import { handleCreateGame, handleStartGame, handleNextQuestion } from "./host.handlers.js";
+import { handleJoinGame, handleSubmitAnswer, handleDisconnect } from "./player.handlers.js";
 
 export const registerSocketHandlers = (io) => {
+  global.io = io;
+
   io.on("connection", (socket) => {
-    console.log("Socket connected:", socket.id);
-
+    console.log(`[CONNECTION] New socket connected: ${socket.id}`);
     handleCreateGame(socket);
+    handleStartGame(socket);
+    handleNextQuestion(socket);
     handleJoinGame(socket);
-
-    socket.on("disconnect", () => {
-      console.log("Socket disconnected:", socket.id);
-    });
+    handleSubmitAnswer(socket);
+    handleDisconnect(socket);
   });
 };
