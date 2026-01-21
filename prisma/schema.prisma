@@ -19,8 +19,11 @@ model User {
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
+
   quizzes   Quiz[]
+  results   PlayerGameResult[]
 }
+
 
 model Quiz {
   id        String     @id @default(uuid())
@@ -46,4 +49,18 @@ model Option {
   isCorrect  Boolean  @default(false)
   questionId String
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+model PlayerGameResult {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  quizTitle    String
+  score        Int
+  rank         Int
+  totalPlayers Int
+  accuracy     Float
+
+  playedAt     DateTime @default(now())
 }

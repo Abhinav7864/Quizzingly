@@ -3,6 +3,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes.js";
 import quizRoutes from "./routes/quiz.routes.js";
 import questionRoutes from "./routes/question.routes.js";
+import playerRoutes from "./routes/player.routes.js";
 import { requireAuth } from "./middleware/auth.middleware.js";
 
 const app = express();
@@ -21,6 +22,9 @@ console.log("[Setup] Quiz routes mounted at /quizzes");
 
 app.use("/", questionRoutes);
 console.log("[Setup] Question routes mounted at /questions");
+
+app.use("/player", playerRoutes);
+console.log("[Setup] Player routes mounted at /api/player");
 
 app.get("/protected", requireAuth, (req, res) => {
   console.log("[Route] GET /protected accessed");

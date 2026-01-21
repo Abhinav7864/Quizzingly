@@ -1,6 +1,7 @@
 import { games } from "./gameStore.js";
 import { calculateScore } from "./scoring.js";
 import { sendLeaderboard } from "./leaderboard.js";
+import prisma from "../db/prisma.js";
 
 export const sendQuestion = (gameCode) => {
   const game = games[gameCode];
@@ -28,18 +29,41 @@ export const sendQuestion = (gameCode) => {
     endQuestion(gameCode);
   }, question.timeLimit * 1000);
 };
-export const endGame = (gameCode) => {
+export const endGame = async (gameCode) => {
   const game = games[gameCode];
   if (!game) return;
 
-  const finalLeaderboard = Object.values(game.players)
-    .map((p) => ({
-      name: p.name,
-      score: p.score,
-    }))
+  const leaderboard = Object.values(game.players)
     .sort((a, b) => b.score - a.score);
 
-  global.io.to(gameCode).emit("server:game_over", finalLeaderboard);
+  global.io.to(gameCode).emit("server:game_over", leaderboard);
+
+  const quizTitle = game.questions[0]?.quiz?.title ?? "Live Quiz";
+
+  let rank = 1;
+
+  for (const player of leaderboard) {
+    if (!player.userId) {
+      rank++;
+      continue;
+    }
+
+    await prisma.playerGameResult.create({
+      data: {
+        userId: player.userId,
+        quizTitle,
+        score: player.score,
+        rank,
+        totalPlayers: leaderboard.length,
+        accuracy:
+          player.answersTotal === 0
+            ? 0
+            : player.answersCorrect / player.answersTotal,
+      },
+    });
+
+    rank++;
+  }
 
   delete games[gameCode];
 };
@@ -63,7 +87,11 @@ export const endQuestion = (gameCode) => {
     const player = game.players[socketId];
     if (!player) return;
 
+    player.answersTotal += 1;
+
     if (correctOptionIds.includes(optionId)) {
+      player.answersCorrect += 1;
+
       // Calculate score based on when the user ACTUALLY answered
       const score = calculateScore({
         startTime: game.currentQuestionStartTime,

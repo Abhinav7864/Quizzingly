@@ -1,7 +1,7 @@
 import { games, socketGameMap } from "./gameStore.js";
 
 export const handleJoinGame = (socket) => {
-  socket.on("player:join_game", ({ gameCode, name }) => {
+  socket.on("player:join_game", ({ gameCode, name, userId }) => {
     const game = games[gameCode];
 
     if (!game) {
@@ -17,6 +17,9 @@ export const handleJoinGame = (socket) => {
     game.players[socket.id] = {
       name,
       score: 0,
+      answersCorrect: 0,
+      answersTotal: 0,
+      userId: userId ?? null,
     };
     
     // Map player to game
@@ -30,7 +33,7 @@ export const handleJoinGame = (socket) => {
 
     socket.emit("server:joined_lobby", playerNames);
 
-    console.log(`[PLAYER] ${name} joined ${gameCode} (Socket: ${socket.id})`);
+    console.log(`[PLAYER] ${name} joined ${gameCode} (Socket: ${socket.id}) with userId: ${userId}`);
   });
 };
 
