@@ -1,54 +1,59 @@
-import { games, socketGameMap } from "./gameStore.js";
+import { redis } from "../redis/client.js";
 
 export const handleJoinGame = (socket) => {
-  socket.on("player:join_game", ({ gameCode, name, userId }) => {
-    const game = games[gameCode];
-
-    if (!game) {
+  socket.on("player:join_game", async ({ gameCode, name, userId }) => {
+    const exists = await redis.exists(`game:${gameCode}`);
+    if (!exists) {
       socket.emit("server:error", { message: "Game not found" });
       return;
     }
 
-    if (game.started) {
+    const started = await redis.hGet(`game:${gameCode}`, "started");
+    if (started === "true") {
       socket.emit("server:error", { message: "Game already started" });
       return;
     }
 
-    game.players[socket.id] = {
+    await redis.hSet(`players:${gameCode}`, socket.id, JSON.stringify({
       name,
       score: 0,
       answersCorrect: 0,
       answersTotal: 0,
       userId: userId ?? null,
-    };
-    
-    // Map player to game
-    socketGameMap[socket.id] = gameCode;
+    }));
+
+    await redis.zAdd(`leaderboard:${gameCode}`, {
+      score: 0,
+      value: socket.id,
+    });
+
+    await redis.set(`socket:${socket.id}`, gameCode);
 
     socket.join(gameCode);
 
-    const playerNames = Object.values(game.players).map((p) => p.name);
+    const players = await redis.hVals(`players:${gameCode}`);
+    const names = players.map(p => JSON.parse(p).name);
 
-    socket.to(gameCode).emit("server:player_list_update", playerNames);
+    global.io.to(gameCode).emit("server:player_list_update", names);
 
-    socket.emit("server:joined_lobby", playerNames);
+    socket.emit("server:joined_lobby", names);
 
     console.log(`[PLAYER] ${name} joined ${gameCode} (Socket: ${socket.id}) with userId: ${userId}`);
   });
 };
 
 export const handleSubmitAnswer = (socket) => {
-  socket.on("player:submit_answer", ({ gameCode, optionId }) => {
-    const game = games[gameCode];
-    if (!game || !game.started) return;
+  socket.on("player:submit_answer", async ({ gameCode, optionId }) => {
+    const game = await redis.hGetAll(`game:${gameCode}`);
+    if (!game || game.started !== "true") return;
 
-    // One answer per question
-    if (game.answers[socket.id]) return;
+    const hasAnswered = await redis.hExists(`answers:${gameCode}`, socket.id);
+    if (hasAnswered) return;
 
-    game.answers[socket.id] = {
+    await redis.hSet(`answers:${gameCode}`, socket.id, JSON.stringify({
       optionId,
       timestamp: Date.now()
-    };
+    }));
 
     socket.emit("server:answer_received");
     console.log(`[ANSWER] Player ${socket.id} answered in ${gameCode}`);
@@ -56,38 +61,50 @@ export const handleSubmitAnswer = (socket) => {
 };
 
 export const handleDisconnect = (socket) => {
-  socket.on("disconnect", () => {
-    const gameCode = socketGameMap[socket.id];
+  socket.on("disconnect", async () => {
+    const gameCode = await redis.get(`socket:${socket.id}`);
 
-    if (gameCode && games[gameCode]) {
-      const game = games[gameCode];
+    if (gameCode) {
+      const game = await redis.hGetAll(`game:${gameCode}`);
 
-      // 1. Handle Player Disconnect
-      if (game.players[socket.id]) {
-        const { name } = game.players[socket.id];
-        delete game.players[socket.id];
+      if (game) {
+        const playerJson = await redis.hGet(`players:${gameCode}`, socket.id);
 
-        const playerNames = Object.values(game.players).map((p) => p.name);
-        socket.to(gameCode).emit("server:player_list_update", playerNames);
+        if (playerJson) {
+          const player = JSON.parse(playerJson);
+          await redis.hDel(`players:${gameCode}`, socket.id);
+          await redis.zRem(`leaderboard:${gameCode}`, socket.id);
 
-        console.log(`[DISCONNECT] Player '${name}' left game ${gameCode}`);
-      }
+          const players = await redis.hVals(`players:${gameCode}`);
+          const names = players.map(p => JSON.parse(p).name);
 
-      // 2. Handle Host Disconnect
-      if (game.hostSocketId === socket.id) {
-        console.log(`[DISCONNECT] Host left game ${gameCode}. Ending game...`);
-        
-        socket.to(gameCode).emit("server:error", {
-          message: "Host disconnected. Game ended."
-        });
-        
-        socket.to(gameCode).emit("server:game_over");
-        delete games[gameCode];
+          socket.to(gameCode).emit("server:player_list_update", names);
+
+          console.log(`[DISCONNECT] Player '${player.name}' left game ${gameCode}`);
+        }
+
+        if (game.hostSocketId === socket.id) {
+          console.log(`[DISCONNECT] Host left game ${gameCode}. Ending game...`);
+
+          socket.to(gameCode).emit("server:error", {
+            message: "Host disconnected. Game ended."
+          });
+
+          socket.to(gameCode).emit("server:game_over");
+
+          await redis.del(
+            `game:${gameCode}`,
+            `players:${gameCode}`,
+            `leaderboard:${gameCode}`,
+            `answers:${gameCode}`,
+            `questions:${gameCode}`
+          );
+        }
       }
     } else {
       console.log(`[DISCONNECT] Socket ${socket.id} disconnected (No active game)`);
     }
 
-    delete socketGameMap[socket.id];
+    await redis.del(`socket:${socket.id}`);
   });
 };

@@ -1,17 +1,22 @@
-import { games } from "./gameStore.js";
+import { redis } from "../redis/client.js";
 import { calculateScore } from "./scoring.js";
 import { sendLeaderboard } from "./leaderboard.js";
 import prisma from "../db/prisma.js";
 
-export const sendQuestion = (gameCode) => {
-  const game = games[gameCode];
+export const sendQuestion = async (gameCode) => {
+  const game = await redis.hGetAll(`game:${gameCode}`);
   if (!game) return;
 
-  const question = game.questions[game.currentQuestionIndex];
+  const questionsJson = await redis.get(`questions:${gameCode}`);
+  const questions = JSON.parse(questionsJson);
+  const currentQuestionIndex = parseInt(game.currentQuestionIndex);
+
+  const question = questions[currentQuestionIndex];
   if (!question) return;
 
-  game.currentQuestionStartTime = Date.now();
-  game.answers = {}; // reset answers
+  await redis.hSet(`game:${gameCode}`, "currentQuestionStartTime", Date.now().toString());
+
+  await redis.del(`answers:${gameCode}`);
 
   const payload = {
     id: question.id,
@@ -30,105 +35,152 @@ export const sendQuestion = (gameCode) => {
   }, question.timeLimit * 1000);
 };
 export const endGame = async (gameCode) => {
-  const game = games[gameCode];
-  if (!game) return;
+  const questionsJson = await redis.get(`questions:${gameCode}`);
+  const questions = JSON.parse(questionsJson);
 
-  const leaderboard = Object.values(game.players)
-    .sort((a, b) => b.score - a.score);
+  const leaderboardData = await redis.zRevRange(
+    `leaderboard:${gameCode}`,
+    0,
+    -1,
+    { WITHSCORES: true }
+  );
+
+  const leaderboard = [];
+  const players = await redis.hGetAll(`players:${gameCode}`);
+
+  for (let i = 0; i < leaderboardData.length; i += 2) {
+    const socketId = leaderboardData[i];
+    const score = parseInt(leaderboardData[i + 1]);
+    const playerJson = players[socketId];
+    if (playerJson) {
+      const player = JSON.parse(playerJson);
+      leaderboard.push({
+        name: player.name,
+        score,
+      });
+    }
+  }
 
   global.io.to(gameCode).emit("server:game_over", leaderboard);
 
-  const quizTitle = game.questions[0]?.quiz?.title ?? "Live Quiz";
+  const quizTitle = questions[0]?.quiz?.title ?? "Live Quiz";
 
   let rank = 1;
 
-  for (const player of leaderboard) {
-    if (!player.userId) {
+  for (const entry of leaderboard) {
+    const player = Object.values(players).find(p => JSON.parse(p).name === entry.name);
+    if (!player) {
+      rank++;
+      continue;
+    }
+
+    const playerData = JSON.parse(player);
+    if (!playerData.userId) {
       rank++;
       continue;
     }
 
     await prisma.playerGameResult.create({
       data: {
-        userId: player.userId,
+        userId: playerData.userId,
         quizTitle,
-        score: player.score,
+        score: entry.score,
         rank,
         totalPlayers: leaderboard.length,
         accuracy:
-          player.answersTotal === 0
+          playerData.answersTotal === 0
             ? 0
-            : player.answersCorrect / player.answersTotal,
+            : playerData.answersCorrect / playerData.answersTotal,
       },
     });
 
     rank++;
   }
 
-  delete games[gameCode];
+  await redis.del(
+    `game:${gameCode}`,
+    `players:${gameCode}`,
+    `leaderboard:${gameCode}`,
+    `answers:${gameCode}`,
+    `questions:${gameCode}`
+  );
 };
 
-export const endQuestion = (gameCode) => {
-  const game = games[gameCode];
+export const endQuestion = async (gameCode) => {
+  const game = await redis.hGetAll(`game:${gameCode}`);
   if (!game) return;
 
-  const question = game.questions[game.currentQuestionIndex];
+  const questionsJson = await redis.get(`questions:${gameCode}`);
+  const questions = JSON.parse(questionsJson);
+  const currentQuestionIndex = parseInt(game.currentQuestionIndex);
+  const question = questions[currentQuestionIndex];
+
   const correctOptionIds = question.options
     .filter((o) => o.isCorrect)
     .map((o) => o.id);
 
   console.log(`[DEBUG] Question: ${question.text}`);
   console.log(`[DEBUG] Correct Option IDs: ${JSON.stringify(correctOptionIds)}`);
-  console.log(`[DEBUG] Player Answers: ${JSON.stringify(game.answers)}`);
 
-  // Evaluate answers
-  Object.entries(game.answers).forEach(([socketId, answerData]) => {
-    const { optionId, timestamp } = answerData;
-    const player = game.players[socketId];
-    if (!player) return;
+  const answers = await redis.hGetAll(`answers:${gameCode}`);
+  console.log(`[DEBUG] Player Answers: ${JSON.stringify(answers)}`);
+
+  const players = await redis.hGetAll(`players:${gameCode}`);
+
+  Object.entries(answers).forEach(async ([socketId, answerJson]) => {
+    const answer = JSON.parse(answerJson);
+    const { optionId, timestamp } = answer;
+    const playerJson = players[socketId];
+
+    if (!playerJson) return;
+
+    const player = JSON.parse(playerJson);
 
     player.answersTotal += 1;
 
     if (correctOptionIds.includes(optionId)) {
       player.answersCorrect += 1;
 
-      // Calculate score based on when the user ACTUALLY answered
       const score = calculateScore({
-        startTime: game.currentQuestionStartTime,
+        startTime: parseInt(game.currentQuestionStartTime),
         endTime: timestamp,
         timeLimit: question.timeLimit,
       });
-      
-      console.log(`[SCORE] Player ${game.players[socketId].name} correct! (+${score})`);
-      console.log(`[DEBUG] Previous Score: ${player.score} (Type: ${typeof player.score})`);
-      console.log(`[DEBUG] Adding Score: ${score} (Type: ${typeof score})`);
 
+      console.log(`[SCORE] Player ${player.name} correct! (+${score})`);
+
+      await redis.zIncrBy(`leaderboard:${gameCode}`, score, socketId);
       player.score += score;
 
-      console.log(`[DEBUG] New Score: ${player.score}`);
+      const newScore = (await redis.zScore(`leaderboard:${gameCode}`, socketId)) || score;
 
       global.io.to(socketId).emit("server:answer_result", {
         correct: true,
         scoreGained: score,
-        totalScore: player.score,
+        totalScore: newScore,
       });
     } else {
-      console.log(`[SCORE] Player ${game.players[socketId].name} wrong! (Ans: ${optionId}, Correct: ${correctOptionIds})`);
+      console.log(`[SCORE] Player ${player.name} wrong! (Ans: ${optionId}, Correct: ${correctOptionIds})`);
+      const currentScore = await redis.zScore(`leaderboard:${gameCode}`, socketId) || 0;
       global.io.to(socketId).emit("server:answer_result", {
         correct: false,
         scoreGained: 0,
-        totalScore: player.score,
+        totalScore: currentScore,
       });
     }
+
+    await redis.hSet(`players:${gameCode}`, socketId, JSON.stringify(player));
   });
 
   global.io.to(gameCode).emit("server:times_up");
 
   sendLeaderboard(gameCode);
 
-  game.currentQuestionIndex++;
+  await redis.hIncrBy(`game:${gameCode}`, "currentQuestionIndex", 1);
 
-  if (game.currentQuestionIndex < game.questions.length) {
+  const newIndex = parseInt(await redis.hGet(`game:${gameCode}`, "currentQuestionIndex"));
+
+  if (newIndex < questions.length) {
     global.io.to(gameCode).emit("server:question_ended");
   } else {
     endGame(gameCode);

@@ -1,27 +1,24 @@
-import { games, socketGameMap } from "./gameStore.js";
+import { redis } from "../redis/client.js";
 import { generateJoinCode } from "./utils.js";
 import prisma from "../db/prisma.js";
 import { sendQuestion } from "./question.flow.js";
 
 export const handleCreateGame = (socket) => {
-  socket.on("host:create_game", ({ quizId }) => {
+  socket.on("host:create_game", async ({ quizId }) => {
     const gameCode = generateJoinCode();
 
-    games[gameCode] = {
+    await redis.hSet(`game:${gameCode}`, {
       hostSocketId: socket.id,
       quizId,
-      players: {},
-      started: false,
-    };
-    
-    // Map host to game
-    socketGameMap[socket.id] = gameCode;
+      started: "false",
+      currentQuestionIndex: "0",
+    });
+
+    await redis.set(`socket:${socket.id}`, gameCode);
 
     socket.join(gameCode);
 
-    socket.emit("server:game_created", {
-      gameCode,
-    });
+    socket.emit("server:game_created", { gameCode });
 
     console.log(`[HOST] Game created: ${gameCode} (Socket: ${socket.id})`);
   });
@@ -29,7 +26,7 @@ export const handleCreateGame = (socket) => {
 
 export const handleStartGame = (socket) => {
   socket.on("host:start_game", async ({ gameCode }) => {
-    const game = games[gameCode];
+    const game = await redis.hGetAll(`game:${gameCode}`);
 
     if (!game || game.hostSocketId !== socket.id) {
       socket.emit("server:error", { message: "Not authorized" });
@@ -50,17 +47,20 @@ export const handleStartGame = (socket) => {
       return;
     }
 
-    game.started = true;
-    game.questions = quiz.questions;
-    game.currentQuestionIndex = 0;
+    await redis.hSet(`game:${gameCode}`, {
+      started: "true",
+      currentQuestionIndex: "0",
+    });
+
+    await redis.set(`questions:${gameCode}`, JSON.stringify(quiz.questions));
 
     sendQuestion(gameCode);
   });
 };
 
 export const handleNextQuestion = (socket) => {
-  socket.on("host:next_question", ({ gameCode }) => {
-    const game = games[gameCode];
+  socket.on("host:next_question", async ({ gameCode }) => {
+    const game = await redis.hGetAll(`game:${gameCode}`);
 
     if (!game || game.hostSocketId !== socket.id) {
       socket.emit("server:error", { message: "Not authorized" });
