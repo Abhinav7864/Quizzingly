@@ -73,7 +73,9 @@ export const updateQuestion = async (req, res) => {
     return res.status(404).json({ message: "Question not found" });
   }
 
-  console.log("Executing transaction to update question and replace options...");
+  console.log(
+    "Executing transaction to update question and replace options...",
+  );
   const updated = await prisma.$transaction([
     prisma.option.deleteMany({
       where: { questionId },
