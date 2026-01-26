@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Host Functionality</title>
+    <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Test Host Functionality</h1>
+    <div id="logs"></div>
+
+    <script>
+        const socket = io('http://localhost:4002');
+        const logsDiv = document.getElementById('logs');
+
+        function log(message) {
+            console.log(message);
+            logsDiv.innerHTML += '<p>' + new Date().toLocaleTimeString() + ': ' + message + '</p>';
+        }
+
+        socket.on('connect', () => {
+            log('✅ Connected to Socket.IO server');
+            log('Socket ID: ' + socket.id);
+            
+            // Test creating a game
+            log('🎮 Creating game with quiz ID: b8f5e8b6-508b-4cfa-9e9e-0d93f28edb8c');
+            socket.emit('host:create_game', { 
+                quizId: 'b8f5e8b6-508b-4cfa-9e9e-0d93f28edb8c' 
+            });
+        });
+
+        socket.on('server:game_created', (data) => {
+            log('🎉 Game created with code: ' + data.gameCode);
+            log('Test joining with this code in another window!');
+        });
+
+        socket.on('server:player_list_update', (players) => {
+            log('👥 Player list updated: ' + JSON.stringify(players));
+        });
+
+        socket.on('server:error', (error) => {
+            log('❌ Error: ' + error.message);
+        });
+
+        socket.on('disconnect', () => {
+            log('❌ Disconnected from Socket.IO server');
+        });
+    </script>
+</body>
+</html>

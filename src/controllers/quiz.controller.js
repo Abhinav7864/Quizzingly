@@ -32,6 +32,11 @@ export const getMyQuizzes = async (req, res) => {
   const quizzes = await prisma.quiz.findMany({
     where: { creatorId: userId },
     orderBy: { createdAt: "desc" },
+    include: {
+      _count: {
+        select: { questions: true },
+      },
+    },
   });
   console.log("Quizzes found:", quizzes.length);
 

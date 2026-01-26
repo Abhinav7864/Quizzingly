@@ -2,13 +2,13 @@
 import { io } from "socket.io-client";
 import readline from "readline";
 
-const socket = io("http://localhost:4000");
+const socket = io("http://localhost:4001");
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-const QUIZ_ID = "fe743d09-2949-4df5-89b6-d8041e386a73"; // Valid ID fetched from DB
+const QUIZ_ID = "001b7f31-7c11-4e40-837a-c9ce49420218"; // Valid ID fetched from DB
 let myGameCode = null;
 
 socket.on("connect", () => {

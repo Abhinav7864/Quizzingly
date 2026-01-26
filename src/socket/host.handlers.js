@@ -5,6 +5,8 @@ import { sendQuestion } from "./question.flow.js";
 
 export const handleCreateGame = (socket) => {
   socket.on("host:create_game", async ({ quizId }) => {
+    console.log(`[HOST] Received create_game request for quizId: ${quizId} from socket: ${socket.id}`);
+    
     const gameCode = generateJoinCode();
 
     await redis.hSet(`game:${gameCode}`, {
@@ -20,7 +22,7 @@ export const handleCreateGame = (socket) => {
 
     socket.emit("server:game_created", { gameCode });
 
-    console.log(`[HOST] Game created: ${gameCode} (Socket: ${socket.id})`);
+    console.log(`[HOST] Game created: ${gameCode} (Socket: ${socket.id}) for quiz: ${quizId}`);
   });
 };
 

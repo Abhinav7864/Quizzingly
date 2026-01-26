@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 import readline from "readline";
 
-const socket = io("http://localhost:4000");
+const socket = io("http://localhost:4001");
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
