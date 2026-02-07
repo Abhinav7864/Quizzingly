@@ -18,8 +18,12 @@ const io = new Server(server, {
   transports: ['websocket', 'polling']
 });
 
-await redis.connect();
-console.log("Redis connected");
+try {
+  await redis.connect();
+  console.log("Redis connected");
+} catch (err) {
+  console.warn("Redis not available - game features will be limited:", err.message);
+}
 
 io.on('connection', (socket) => {
   console.log(`[SOCKET] New connection: ${socket.id} from ${socket.handshake.address}`);

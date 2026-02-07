@@ -38,19 +38,19 @@ export const endGame = async (gameCode) => {
   const questionsJson = await redis.get(`questions:${gameCode}`);
   const questions = JSON.parse(questionsJson);
 
-  const leaderboardData = await redis.zRevRange(
+const leaderboardData = await redis.zRangeWithScores(
     `leaderboard:${gameCode}`,
     0,
     -1,
-    { WITHSCORES: true }
+    { REV: true }
   );
 
   const leaderboard = [];
   const players = await redis.hGetAll(`players:${gameCode}`);
 
-  for (let i = 0; i < leaderboardData.length; i += 2) {
-    const socketId = leaderboardData[i];
-    const score = parseInt(leaderboardData[i + 1]);
+  for (const entry of leaderboardData) {
+    const socketId = entry.value;
+    const score = parseInt(entry.score);
     const playerJson = players[socketId];
     if (playerJson) {
       const player = JSON.parse(playerJson);
