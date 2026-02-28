@@ -45,14 +45,14 @@ export const Header = () => {
   ];
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-gray-950/80 backdrop-blur-md shadow-lg py-2' : 'bg-transparent py-4'}`}>
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-gray-950/90 backdrop-blur-md border-b border-gray-800/50 shadow-lg py-2' : 'bg-transparent py-4'}`}>
       <div className="container mx-auto px-4 flex justify-between items-center">
-        <Link href="/" className="flex items-center space-x-2 group">
-          <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center group-hover:rotate-12 transition-transform shadow-lg shadow-indigo-500/20">
+        <Link href="/" className="flex items-center space-x-2.5 group">
+          <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center group-hover:rotate-12 transition-transform duration-200 shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/40">
             <span className="text-white font-black text-xl">Q</span>
           </div>
-          <span className="text-2xl font-black tracking-tighter bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-            AI QUIZ
+          <span className="text-xl font-black tracking-tighter bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+            Quizzingly
           </span>
         </Link>
 
@@ -65,10 +65,10 @@ export const Header = () => {
                 key={link.name} 
                 href={link.href}
                 onClick={link.onClick}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   isActive 
-                    ? 'text-indigo-400 bg-indigo-400/10' 
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    ? 'text-indigo-300 bg-indigo-500/15 border border-indigo-500/30' 
+                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50 border border-transparent'
                 }`}
               >
                 {link.icon}
@@ -78,22 +78,22 @@ export const Header = () => {
           })}
         </nav>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           {!isLoading && (
             isAuthenticated ? (
-              <div className="flex items-center gap-4">
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gray-900 rounded-full border border-gray-800">
+              <div className="flex items-center gap-3">
+                <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 bg-gray-900/80 rounded-full border border-gray-700/50 hover:border-indigo-500/30 transition-colors duration-200">
                   <User size={14} className="text-indigo-400" />
-                  <span className="text-xs font-bold text-gray-200">
+                  <span className="text-xs font-semibold text-gray-200">
                     {user?.username || user?.email?.split('@')[0]}
                   </span>
                 </div>
-                <Button variant="ghost" size="sm" onClick={logout} className="text-gray-400 hover:text-red-400">
+                <Button variant="ghost" size="sm" onClick={logout} className="hover:text-red-400 hover:bg-red-500/10">
                   <LogOut size={18} />
                 </Button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <Link href="/login" className="hidden sm:block">
                   <Button variant="ghost" size="sm">Log In</Button>
                 </Link>

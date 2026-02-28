@@ -90,10 +90,15 @@ export default function HomePage() {
       </motion.div>
 
       {/* Join Section */}
-      <div id="join-section" className="w-full max-w-lg p-8 space-y-8 bg-gray-800/50 backdrop-blur-md border border-gray-700 rounded-2xl shadow-2xl">
-        <div className="text-center">
+      <motion.div 
+        id="join-section" 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        className="w-full max-w-lg p-8 space-y-8 bg-gray-900 backdrop-blur-md border border-gray-700 rounded-xl shadow-xl hover:border-indigo-500/30 transition-colors duration-200"
+      >
+        <div className="text-center space-y-2">
           <h2 className="text-3xl font-bold text-white">Join a Live Game</h2>
-          <p className="text-gray-400 mt-2">Enter the code provided by the host</p>
+          <p className="text-gray-400 text-sm">Enter the code provided by the host to start playing</p>
         </div>
 
         <form onSubmit={handleJoinGame} className="space-y-6">
@@ -103,56 +108,66 @@ export default function HomePage() {
               placeholder="ENTER CODE"
               value={gameCode}
               onChange={(e) => setGameCode(e.target.value.toUpperCase())}
-              className="text-center text-4xl tracking-[0.5em] font-black h-20 uppercase border-2 focus:border-indigo-500"
+              className="text-center text-4xl tracking-[0.5em] font-black h-20 uppercase"
               required
               maxLength={6}
             />
             
-            <Input
-              id="name"
-              placeholder={isAuthenticated ? `Playing as ${user?.username}` : "Enter Your Name"}
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              className="text-center h-12"
-              required={!isAuthenticated}
-            />
+            {!isAuthenticated && (
+              <Input
+                id="name"
+                label="Your Name"
+                placeholder="Enter your name"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                required={!isAuthenticated}
+              />
+            )}
           </div>
 
           {error && (
-            <motion.p 
+            <motion.div 
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="text-red-400 text-sm text-center bg-red-400/10 py-2 rounded-lg border border-red-400/20"
+              className="text-red-400 text-sm bg-red-500/10 border border-red-500/30 rounded-lg p-3.5"
             >
               {error}
-            </motion.p>
+            </motion.div>
           )}
 
-          <Button type="submit" className="w-full text-xl h-14" isLoading={isJoining}>
+          <Button type="submit" fullWidth size="lg" isLoading={isJoining} className="mt-8">
             JOIN GAME
           </Button>
         </form>
-      </div>
+      </motion.div>
 
       {/* Features/CTA for Creators */}
       {!isAuthenticated && (
-        <div className="grid md:grid-cols-3 gap-8 w-full max-w-6xl px-4 text-center">
-          <div className="p-6 space-y-3 bg-gray-800/30 rounded-xl border border-gray-700/50">
-            <div className="w-12 h-12 bg-indigo-500/20 text-indigo-400 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">1</div>
-            <h3 className="text-xl font-bold">Create Quizzes</h3>
-            <p className="text-gray-400 text-sm">Use AI to generate questions or write your own.</p>
-          </div>
-          <div className="p-6 space-y-3 bg-gray-800/30 rounded-xl border border-gray-700/50">
-            <div className="w-12 h-12 bg-purple-500/20 text-purple-400 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">2</div>
-            <h3 className="text-xl font-bold">Host Live Sessions</h3>
-            <p className="text-gray-400 text-sm">Control the flow and see live results as they happen.</p>
-          </div>
-          <div className="p-6 space-y-3 bg-gray-800/30 rounded-xl border border-gray-700/50">
-            <div className="w-12 h-12 bg-pink-500/20 text-pink-400 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">3</div>
-            <h3 className="text-xl font-bold">Track Stats</h3>
-            <p className="text-gray-400 text-sm">See detailed leaderboards and player performance.</p>
-          </div>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          className="grid md:grid-cols-3 gap-6 w-full max-w-6xl px-4"
+        >
+          {[
+            { icon: '1', title: 'Create Quizzes', desc: 'Use AI to generate questions or write your own.', color: 'indigo' },
+            { icon: '2', title: 'Host Live Sessions', desc: 'Control the flow and see live results as they happen.', color: 'purple' },
+            { icon: '3', title: 'Track Stats', desc: 'See detailed leaderboards and player performance.', color: 'pink' },
+          ].map((feature, idx) => (
+            <motion.div
+              key={idx}
+              whileHover={{ y: -4 }}
+              className={`p-6 space-y-4 bg-gradient-to-br from-gray-800/40 to-gray-900/40 rounded-lg border border-gray-700/50 hover:border-${feature.color}-500/30 transition-all duration-200`}
+            >
+              <div className={`w-12 h-12 bg-${feature.color}-500/20 text-${feature.color}-400 rounded-lg flex items-center justify-center mx-auto text-xl font-bold`}>
+                {feature.icon}
+              </div>
+              <div className="text-center space-y-2">
+                <h3 className="text-lg font-semibold text-white">{feature.title}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{feature.desc}</p>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
       )}
     </div>
   );
