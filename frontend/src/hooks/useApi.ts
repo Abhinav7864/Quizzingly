@@ -8,7 +8,7 @@ import api from '@/lib/api';
 type ApiOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   headers?: Record<string, string>;
-  body?: Record<string, any>;
+  body?: Record<string, any> | FormData;
 };
 
 type UseApiReturn<T> = {
@@ -33,9 +33,10 @@ export const useApi = <T>(): UseApiReturn<T> => {
       return response;
     } catch (err: any) {
       setError(err);
-      if (err.message.includes('401')) {
+      if (err.status === 401) {
         logout();
       }
+      return undefined;
     } finally {
       setIsLoading(false);
     }

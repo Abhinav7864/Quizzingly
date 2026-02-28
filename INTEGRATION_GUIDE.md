@@ -4,7 +4,7 @@
 This guide documents the complete integration between the Next.js frontend and Express.js backend for the AI Quiz Platform.
 
 ## Architecture
-- **Backend**: Express.js server on port 4001 with Socket.IO for real-time features
+- **Backend**: Express.js server on port 4002 with Socket.IO for real-time features
 - **Frontend**: Next.js app on port 3000 with API proxy and Socket.IO client
 - **Database**: PostgreSQL with Prisma ORM
 - **Cache**: Redis for game state and session management
@@ -19,6 +19,7 @@ This guide documents the complete integration between the Next.js frontend and E
 ### Quizzes
 - `GET /quizzes` - Get user's quizzes (requires auth)
 - `POST /quizzes` - Create new quiz (requires auth)
+- `POST /quizzes/generate-ai` - Generate quiz using AI (requires auth, PDF file, and prompt)
 - `GET /quizzes/:id` - Get quiz by ID (requires auth)
 - `PUT /quizzes/:id` - Update quiz (requires auth)
 - `DELETE /quizzes/:id` - Delete quiz (requires auth)
@@ -65,10 +66,10 @@ This guide documents the complete integration between the Next.js frontend and E
 const nextConfig: NextConfig = {
   async rewrites() {
     return [
-      { source: "/api/auth/:path*", destination: "http://localhost:4001/auth/:path*" },
-      { source: "/api/quizzes/:path*", destination: "http://localhost:4001/quizzes/:path*" },
-      { source: "/api/questions/:path*", destination: "http://localhost:4001/questions/:path*" },
-      { source: "/api/player/:path*", destination: "http://localhost:4001/player/:path*" },
+      { source: "/api/auth/:path*", destination: "http://localhost:4002/auth/:path*" },
+      { source: "/api/quizzes/:path*", destination: "http://localhost:4002/quizzes/:path*" },
+      { source: "/api/questions/:path*", destination: "http://localhost:4002/questions/:path*" },
+      { source: "/api/player/:path*", destination: "http://localhost:4002/player/:path*" },
     ];
   },
 };
@@ -76,7 +77,7 @@ const nextConfig: NextConfig = {
 
 ### Socket.IO Connection
 ```typescript
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4001';
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4002';
 const socket = io(SOCKET_URL, {
   path: '/socket.io',
   addTrailingSlash: false,
@@ -133,17 +134,18 @@ joinGame('GAME123', 'PlayerName');
 ### Backend (.env)
 ```
 NODE_ENV=development
-PORT=4001
+PORT=4002
 DATABASE_URL="postgresql://username:password@localhost:5432/quiz_db"
 REDIS_URL="redis://localhost:6379"
 JWT_SECRET="your-jwt-secret"
 CORS_ORIGINS="http://localhost:3000"
+GEMINI_API_KEY="your-gemini-api-key"
 ```
 
 ### Frontend (.env.local)
 ```
-NEXT_PUBLIC_API_URL="http://localhost:4001"
-NEXT_PUBLIC_SOCKET_URL="http://localhost:4001"
+NEXT_PUBLIC_API_URL="http://localhost:4002"
+NEXT_PUBLIC_SOCKET_URL="http://localhost:4002"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
@@ -159,12 +161,12 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ### API Testing
 ```bash
 # Register user
-curl -X POST http://localhost:4001/auth/register \
+curl -X POST http://localhost:4002/auth/register \
   -H "Content-Type: application/json" \
   -d '{"username":"test","email":"test@example.com","password":"password123"}'
 
 # Login
-curl -X POST http://localhost:4001/auth/login \
+curl -X POST http://localhost:4002/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","password":"password123"}'
 ```
@@ -192,7 +194,7 @@ Open `test-socket.html` in browser to test Socket.IO connection.
 
 ### Common Issues
 1. **CORS Errors**: Check backend CORS configuration
-2. **Socket Connection**: Verify ports match (4001)
+2. **Socket Connection**: Verify ports match (4002)
 3. **API 404s**: Check Next.js proxy configuration
 4. **Auth Failures**: Verify JWT token handling
 

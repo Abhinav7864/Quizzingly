@@ -1,13 +1,14 @@
 
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useApi } from '@/hooks/useApi';
 import { Quiz, Question, Option } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useParams, useRouter } from 'next/navigation';
 import { QuestionForm } from '@/components/creator/QuestionForm';
+import { ArrowLeft, Save } from 'lucide-react';
 
 // Internal component for displaying a question item
 const QuestionItem = ({ question, onEdit, onDelete }: { question: Question, onEdit: () => void, onDelete: () => void }) => (
@@ -24,6 +25,7 @@ const QuestionItem = ({ question, onEdit, onDelete }: { question: Question, onEd
 export default function EditQuizPage() {
   const params = useParams();
   const quizId = params.id as string;
+  const router = useRouter();
 
   const { data: initialQuiz, isLoading: isLoadingQuiz, exec: fetchQuiz } = useApi<Quiz>();
   const { exec: updateQuizTitleAPI } = useApi();
@@ -88,7 +90,20 @@ export default function EditQuizPage() {
   return (
     <div className="container mx-auto p-4 max-w-4xl">
       <div className="bg-gray-800 p-6 rounded-lg mb-6">
-        <h1 className="text-3xl font-bold mb-4">Editing Quiz</h1>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard')}>
+              <ArrowLeft size={20} />
+            </Button>
+            <h1 className="text-3xl font-bold">Editing Quiz</h1>
+          </div>
+          <Button 
+            onClick={() => router.push('/dashboard')}
+            className="gap-2"
+          >
+            <Save size={18} /> Save to Hub
+          </Button>
+        </div>
         <Input
           id="quiz-title"
           label="Quiz Title"
@@ -103,29 +118,42 @@ export default function EditQuizPage() {
 
       <div className="space-y-4 mb-8">
         {quiz.questions?.map(question => (
-          <QuestionItem 
-            key={question.id} 
-            question={question}
-            onEdit={() => setEditingQuestion(question)}
-            onDelete={() => handleDeleteQuestion(question.id)}
-          />
+          <React.Fragment key={question.id}>
+            <QuestionItem 
+              question={question}
+              onEdit={() => setEditingQuestion(question)}
+              onDelete={() => handleDeleteQuestion(question.id)}
+            />
+            {editingQuestion?.id === question.id && (
+              <div className="bg-gray-800 p-6 rounded-lg border-2 border-indigo-500">
+                <QuestionForm 
+                  quizId={quizId}
+                  questionToEdit={editingQuestion}
+                  onQuestionSaved={handleQuestionSaved}
+                  onCancelEdit={() => setEditingQuestion(null)}
+                />
+              </div>
+            )}
+          </React.Fragment>
         ))}
         {quiz.questions?.length === 0 && <p className="text-gray-400">No questions yet. Add one below!</p>}
       </div>
 
-      <div>
-        <h2 className="text-2xl font-bold mb-4 border-t border-gray-700 pt-6">
-          {editingQuestion ? 'Edit Question' : 'Add New Question'}
-        </h2>
-        <div className="bg-gray-800 p-6 rounded-lg">
-          <QuestionForm 
-            quizId={quizId}
-            questionToEdit={editingQuestion}
-            onQuestionSaved={handleQuestionSaved}
-            onCancelEdit={() => setEditingQuestion(null)}
-          />
+      {!editingQuestion && (
+        <div>
+          <h2 className="text-2xl font-bold mb-4 border-t border-gray-700 pt-6">
+            Add New Question
+          </h2>
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <QuestionForm 
+              quizId={quizId}
+              questionToEdit={null}
+              onQuestionSaved={handleQuestionSaved}
+              onCancelEdit={() => setEditingQuestion(null)}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
