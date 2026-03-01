@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -9,23 +8,22 @@ import { Button } from '@/components/ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, XCircle, Trophy, Timer, Loader2 } from 'lucide-react';
 
-// --- View Components ---
 const Lobby = ({ players }: { players: string[] }) => (
   <div className="text-center space-y-6">
-    <div className="w-24 h-24 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-      <Loader2 size={48} className="text-indigo-400 animate-spin" />
+    <div className="w-20 h-20 bg-indigo-500/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
+      <Loader2 size={40} className="text-indigo-400 animate-spin" />
     </div>
-    <h2 className="text-4xl font-black text-white">You're In!</h2>
-    <p className="text-gray-400 text-lg">Waiting for the host to start the game...</p>
+    <h2 className="text-2xl font-bold text-gray-100">You're In!</h2>
+    <p className="text-gray-500">Waiting for the host to start the game...</p>
     <div className="bg-gray-900/50 p-4 rounded-xl border border-gray-800">
-      <p className="text-sm text-gray-500 mb-2">Connected Players</p>
-      <p className="text-2xl font-bold text-white">{players.length}</p>
+      <p className="text-xs text-gray-500 mb-1">Connected Players</p>
+      <p className="text-xl font-bold text-gray-200">{players.length}</p>
     </div>
   </div>
 );
 
 const QuestionDisplay = ({ question, onAnswer, disabled }: { question: any, onAnswer: (optionId: string) => void, disabled: boolean }) => {
-  const [timeLeft, setTimeLeft] = useState(question.timeLimit || 10);
+  const [timeLeft, setTimeLeft] = useState<number>(question.timeLimit || 10);
 
   useEffect(() => {
     if (timeLeft <= 0) return;
@@ -34,13 +32,13 @@ const QuestionDisplay = ({ question, onAnswer, disabled }: { question: any, onAn
   }, [timeLeft]);
 
   return (
-    <div className="space-y-8 w-full">
-      <div className="flex justify-between items-center bg-gray-900 p-4 rounded-2xl border border-gray-800">
+    <div className="space-y-6 w-full">
+      <div className="flex justify-between items-center bg-gray-900 p-4 rounded-xl border border-gray-800">
         <div className="flex items-center gap-2 text-indigo-400">
-          <Timer size={20} />
-          <span className="font-mono text-2xl font-black">{timeLeft}s</span>
+          <Timer size={18} />
+          <span className="font-mono text-xl font-bold">{timeLeft}s</span>
         </div>
-        <div className="h-2 flex-1 mx-4 bg-gray-800 rounded-full overflow-hidden">
+        <div className="h-1.5 flex-1 mx-3 bg-gray-800 rounded-full overflow-hidden">
           <motion.div 
             className="h-full bg-indigo-500"
             initial={{ width: '100%' }}
@@ -50,32 +48,34 @@ const QuestionDisplay = ({ question, onAnswer, disabled }: { question: any, onAn
         </div>
       </div>
 
-      <h2 className="text-3xl md:text-4xl font-black text-white text-center leading-tight">
+      <h2 className="text-2xl md:text-3xl font-bold text-gray-100 text-center leading-tight">
         {question.text}
       </h2>
 
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-3">
         {question.options.map((opt: any, index: number) => (
           <motion.div
             key={opt.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
+            transition={{ delay: index * 0.08 }}
           >
             <Button 
               onClick={() => onAnswer(opt.id)} 
               disabled={disabled || timeLeft === 0} 
-              className={`w-full text-xl p-6 h-auto justify-start gap-4 border-2 ${
-                ['border-red-500/30', 'border-blue-500/30', 'border-yellow-500/30', 'border-green-500/30'][index % 4]
+              fullWidth
+              size="lg"
+              className={`h-auto py-4 justify-start gap-3 text-left ${
+                ['border-red-500/20', 'border-blue-500/20', 'border-yellow-500/20', 'border-green-500/20'][index % 4]
               }`}
               variant="secondary"
             >
-              <span className={`w-10 h-10 rounded-lg flex items-center justify-center font-black text-white shrink-0 ${
+              <span className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-sm ${
                 ['bg-red-500', 'bg-blue-500', 'bg-yellow-500', 'bg-green-500'][index % 4]
               }`}>
                 {String.fromCharCode(65 + index)}
               </span>
-              <span className="text-left">{opt.text}</span>
+              <span className="flex-1">{opt.text}</span>
             </Button>
           </motion.div>
         ))}
@@ -88,42 +88,44 @@ const AnswerResultView = ({ result }: { result: { correct: boolean; scoreGained:
   <motion.div 
     initial={{ opacity: 0, scale: 0.9 }}
     animate={{ opacity: 1, scale: 1 }}
-    className={`p-10 rounded-3xl text-center space-y-6 shadow-2xl ${
+    className={`p-8 rounded-2xl text-center space-y-5 ${
       result.correct 
-        ? 'bg-green-500/10 border-2 border-green-500/50 text-green-400' 
-        : 'bg-red-500/10 border-2 border-red-500/50 text-red-400'
+        ? 'bg-emerald-500/10 border border-emerald-500/20' 
+        : 'bg-red-500/10 border border-red-500/20'
     }`}
   >
-    <div className="mx-auto w-24 h-24 rounded-full bg-white/10 flex items-center justify-center">
-      {result.correct ? <CheckCircle2 size={64} /> : <XCircle size={64} />}
+    <div className={`mx-auto w-20 h-20 rounded-2xl flex items-center justify-center ${
+      result.correct ? 'bg-emerald-500/20' : 'bg-red-500/20'
+    }`}>
+      {result.correct ? <CheckCircle2 size={48} className="text-emerald-400" /> : <XCircle size={48} className="text-red-400" />}
     </div>
-    <div className="space-y-2">
-      <h2 className="text-5xl font-black">{result.correct ? 'BRILLIANT!' : 'NOT QUITE'}</h2>
-      <p className="text-2xl font-bold opacity-80">
+    <div className="space-y-1">
+      <h2 className="text-3xl font-bold text-gray-100">{result.correct ? 'Correct!' : 'Wrong'}</h2>
+      <p className="text-base font-medium text-gray-400">
         {result.correct ? `+${result.scoreGained} points` : 'Better luck next time'}
       </p>
     </div>
-    <div className="pt-6 border-t border-white/10">
-      <p className="text-sm uppercase tracking-widest opacity-60 mb-1">Current Score</p>
-      <p className="text-4xl font-black text-white">{result.totalScore}</p>
+    <div className="pt-4 border-t border-gray-800">
+      <p className="text-xs uppercase tracking-wider text-gray-500 mb-1">Current Score</p>
+      <p className="text-3xl font-bold text-gray-100">{result.totalScore}</p>
     </div>
   </motion.div>
 );
 
 const PlayerLeaderboardView = ({ leaderboard }: { leaderboard: any[] }) => (
-  <div className="space-y-6 w-full">
+  <div className="space-y-4 w-full">
     <div className="text-center">
-      <Trophy size={48} className="text-yellow-500 mx-auto mb-2" />
-      <h2 className="text-3xl font-black text-white">Leaderboard</h2>
+      <Trophy size={36} className="text-yellow-500 mx-auto mb-2" />
+      <h2 className="text-xl font-bold text-gray-100">Leaderboard</h2>
     </div>
     <div className="space-y-2">
       {leaderboard.slice(0, 10).map((p, i) => (
-        <div key={i} className="flex justify-between items-center p-4 bg-gray-900 border border-gray-800 rounded-xl">
+        <div key={i} className="flex justify-between items-center p-3 bg-gray-900 border border-gray-800 rounded-xl">
           <div className="flex items-center gap-3">
-            <span className="text-gray-500 font-mono text-lg">{i + 1}</span>
-            <span className="font-bold text-gray-200">{p.name}</span>
+            <span className="text-gray-500 font-mono text-sm w-5">{i + 1}</span>
+            <span className="font-medium text-gray-300">{p.name}</span>
           </div>
-          <span className="font-black text-indigo-400">{p.score}</span>
+          <span className="font-bold text-indigo-400">{p.score}</span>
         </div>
       ))}
     </div>
@@ -131,15 +133,13 @@ const PlayerLeaderboardView = ({ leaderboard }: { leaderboard: any[] }) => (
 );
 
 const GameOverView = ({ result, onRestart }: { result: any[], onRestart: () => void }) => (
-  <div className="text-center space-y-8 w-full">
-    <div className="space-y-4">
-      <h2 className="text-6xl font-black text-white bg-gradient-to-b from-white to-gray-500 bg-clip-text text-transparent italic">
-        FINISH!
-      </h2>
-      <p className="text-gray-400 text-xl font-medium">Excellent performance.</p>
+  <div className="text-center space-y-6 w-full">
+    <div className="space-y-2">
+      <h2 className="text-4xl font-bold text-gray-100">Game Over!</h2>
+      <p className="text-gray-500 font-medium">Excellent performance.</p>
     </div>
     <PlayerLeaderboardView leaderboard={result} />
-    <Button onClick={onRestart} size="lg" className="w-full h-16 text-xl">
+    <Button onClick={onRestart} size="lg" fullWidth className="h-12">
       PLAY AGAIN
     </Button>
   </div>
@@ -177,10 +177,7 @@ export default function PlayPage() {
         store.setGameResult(r); 
         setView('gameOver'); 
       },
-      onTimesUp: () => {
-        // If player hasn't answered, they'll be stuck on 'question' view
-        // The server will eventually send answerResult or leaderboardUpdate
-      }
+      onTimesUp: () => {}
     });
   }, [router, store]);
 
@@ -202,16 +199,16 @@ export default function PlayPage() {
         return store.currentQuestion ? <QuestionDisplay question={store.currentQuestion} onAnswer={handleAnswer} disabled={false} /> : null;
       case 'waiting_for_result':
         return (
-          <div className="text-center space-y-6 py-10">
-            <div className="relative mx-auto w-24 h-24">
+          <div className="text-center space-y-5 py-8">
+            <div className="relative mx-auto w-20 h-20">
               <div className="absolute inset-0 bg-indigo-500/20 rounded-full animate-ping"></div>
-              <div className="relative bg-gray-900 rounded-full h-24 w-24 border-4 border-indigo-500 flex items-center justify-center">
-                <CheckCircle2 size={40} className="text-indigo-500" />
+              <div className="relative bg-gray-900 rounded-2xl h-20 w-20 border-2 border-indigo-500 flex items-center justify-center">
+                <CheckCircle2 size={36} className="text-indigo-400" />
               </div>
             </div>
-            <div className="space-y-2">
-              <p className="text-3xl font-black text-white">Answer Locked!</p>
-              <p className="text-gray-400">Waiting for other players...</p>
+            <div className="space-y-1">
+              <p className="text-xl font-bold text-gray-100">Answer Locked!</p>
+              <p className="text-gray-500 text-sm">Waiting for other players...</p>
             </div>
           </div>
         );
@@ -223,11 +220,11 @@ export default function PlayPage() {
         return store.gameResult && <GameOverView result={store.gameResult} onRestart={() => router.push('/')} />;
       case 'waiting':
         return (
-          <div className="text-center space-y-4">
-            <p className="text-3xl font-black text-white animate-pulse italic uppercase tracking-tighter">
+          <div className="text-center space-y-3">
+            <p className="text-2xl font-bold text-gray-100 animate-pulse">
               Get Ready!
             </p>
-            <p className="text-gray-500">Next question is coming up...</p>
+            <p className="text-gray-500 text-sm">Next question is coming up...</p>
           </div>
         );
       case 'lobby':
@@ -237,15 +234,15 @@ export default function PlayPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 flex items-center justify-center min-h-[calc(100vh-120px)] py-10">
-      <div className="w-full max-w-xl">
+    <div className="container mx-auto px-4 flex items-center justify-center min-h-[calc(100vh-80px)] py-8">
+      <div className="w-full max-w-lg">
         <AnimatePresence mode="wait">
           <motion.div 
             key={view}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="bg-gray-950/40 backdrop-blur-xl border border-gray-800 p-8 md:p-12 rounded-[2rem] shadow-2xl transition-all duration-500"
+            exit={{ opacity: 0, y: -10 }}
+            className="bg-gray-900 border border-gray-800 p-7 md:p-8 rounded-2xl"
           >
             {renderView()}
           </motion.div>

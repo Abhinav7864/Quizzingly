@@ -11,6 +11,7 @@ interface SocketHandlers {
   onJoinedLobby?: (players: string[]) => void;
   onNewQuestion?: (question: GameState['currentQuestion']) => void;
   onAnswerResult?: (result: { correct: boolean; scoreGained: number; totalScore: number }) => void;
+  onAnswerSubmitted?: () => void;
   onLeaderboardUpdate?: (leaderboard: Player[]) => void;
   onTimesUp?: () => void;
   onGameOver?: (result: Player[]) => void;
@@ -44,6 +45,7 @@ export const initializeSocket = (handlers: SocketHandlers): Socket => {
   if (handlers.onJoinedLobby) socket.on('server:joined_lobby', (players) => handlers.onJoinedLobby!(players));
   if (handlers.onNewQuestion) socket.on('server:new_question', (question) => handlers.onNewQuestion!(question));
   if (handlers.onAnswerResult) socket.on('server:answer_result', (result) => handlers.onAnswerResult!(result));
+  if (handlers.onAnswerSubmitted) socket.on('server:answer_received', () => handlers.onAnswerSubmitted!());
   if (handlers.onLeaderboardUpdate) socket.on('server:leaderboard_update', (leaderboard) => handlers.onLeaderboardUpdate!(leaderboard));
   if (handlers.onTimesUp) socket.on('server:times_up', () => handlers.onTimesUp!());
   if (handlers.onGameOver) socket.on('server:game_over', (result) => handlers.onGameOver!(result));

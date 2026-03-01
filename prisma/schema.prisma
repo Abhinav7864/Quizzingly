@@ -9,8 +9,37 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Game {
+  id              String   @id @default(uuid())
+  gameCode        String   @unique
+  quizId          String
+  hostId          String
+  status          String   @default("lobby") // lobby, active, finished
+  currentQuestion Int      @default(0)
+  startedAt       DateTime?
+  finishedAt      DateTime?
+  createdAt       DateTime @default(now())
+
+  players         Player[]
+}
+
+model Player {
+  id        String   @id @default(uuid())
+  gameId    String
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  socketId  String?  @unique
+  userId    String?
+  name      String
+  score     Int      @default(0)
+  answers   Json     @default("[]")
+  joinedAt  DateTime @default(now())
+
+  @@index([gameId])
 }
 
 model User {

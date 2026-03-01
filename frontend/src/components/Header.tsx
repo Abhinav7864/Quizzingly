@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -21,7 +20,6 @@ export const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Don't show header on login/register pages
   if (pathname === '/login' || pathname === '/register') {
     return null;
   }
@@ -45,18 +43,18 @@ export const Header = () => {
   ];
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-gray-950/80 backdrop-blur-md shadow-lg py-2' : 'bg-transparent py-4'}`}>
-      <div className="container mx-auto px-4 flex justify-between items-center">
-        <Link href="/" className="flex items-center space-x-2 group">
-          <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center group-hover:rotate-12 transition-transform shadow-lg shadow-indigo-500/20">
-            <span className="text-white font-black text-xl">Q</span>
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-gray-950/95 backdrop-blur-md border-b border-gray-800 py-3' : 'bg-transparent py-5'}`}>
+      <div className="container mx-auto px-5 flex justify-between items-center max-w-6xl">
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="w-9 h-9 bg-indigo-500 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+            <span className="text-white font-bold text-lg">Q</span>
           </div>
-          <span className="text-2xl font-black tracking-tighter bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-            AI QUIZ
+          <span className="text-xl font-bold text-gray-100 tracking-tight">
+            Quizzingly
           </span>
         </Link>
 
-        <nav className="hidden md:flex items-center space-x-1">
+        <nav className="hidden md:flex items-center gap-1">
           {navLinks.map((link) => {
             if (link.private && !isAuthenticated) return null;
             const isActive = pathname === link.href;
@@ -65,10 +63,10 @@ export const Header = () => {
                 key={link.name} 
                 href={link.href}
                 onClick={link.onClick}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                   isActive 
-                    ? 'text-indigo-400 bg-indigo-400/10' 
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    ? 'text-indigo-400 bg-indigo-500/10' 
+                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
                 }`}
               >
                 {link.icon}
@@ -78,13 +76,13 @@ export const Header = () => {
           })}
         </nav>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-3">
           {!isLoading && (
             isAuthenticated ? (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gray-900 rounded-full border border-gray-800">
                   <User size={14} className="text-indigo-400" />
-                  <span className="text-xs font-bold text-gray-200">
+                  <span className="text-xs font-medium text-gray-300">
                     {user?.username || user?.email?.split('@')[0]}
                   </span>
                 </div>
@@ -98,7 +96,7 @@ export const Header = () => {
                   <Button variant="ghost" size="sm">Log In</Button>
                 </Link>
                 <Link href="/register">
-                  <Button variant="primary" size="sm" className="px-5">Join Now</Button>
+                  <Button variant="primary" size="sm">Get Started</Button>
                 </Link>
               </div>
             )

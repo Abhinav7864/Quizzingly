@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useAuth } from '@/context/AuthContext';
@@ -57,29 +56,28 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-20 py-10">
-      {/* Hero Section */}
+    <div className="flex flex-col items-center justify-center py-12 space-y-16">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-6 max-w-3xl"
+        className="text-center space-y-5 max-w-2xl px-5"
       >
-        <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-white">
+        <h1 className="text-4xl md:text-6xl font-bold text-gray-100">
           The Live <span className="text-indigo-500">AI Quiz</span> Platform
         </h1>
-        <p className="text-xl text-gray-400 font-medium">
+        <p className="text-lg text-gray-500">
           Real-time, multiplayer quizzes powered by AI. Create, host, and play with friends.
         </p>
         
-        <div className="flex flex-wrap justify-center gap-4 pt-4">
+        <div className="flex flex-wrap justify-center gap-3 pt-4">
           {isAuthenticated ? (
             <Link href="/dashboard">
-              <Button size="lg" className="px-10">Go to Creator Hub</Button>
+              <Button size="lg">Creator Hub</Button>
             </Link>
           ) : (
             <>
               <Link href="/register">
-                <Button size="lg" className="px-10">Get Started Free</Button>
+                <Button size="lg">Get Started</Button>
               </Link>
               <Button variant="outline" size="lg" onClick={() => document.getElementById('join-section')?.scrollIntoView({ behavior: 'smooth' })}>
                 Join a Game
@@ -89,68 +87,64 @@ export default function HomePage() {
         </div>
       </motion.div>
 
-      {/* Join Section */}
-      <div id="join-section" className="w-full max-w-lg p-8 space-y-8 bg-gray-800/50 backdrop-blur-md border border-gray-700 rounded-2xl shadow-2xl">
+      <div id="join-section" className="w-full max-w-md p-6 space-y-5 bg-gray-900 border border-gray-800 rounded-2xl">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-white">Join a Live Game</h2>
-          <p className="text-gray-400 mt-2">Enter the code provided by the host</p>
+          <h2 className="text-xl font-semibold text-gray-100">Join a Game</h2>
+          <p className="text-sm text-gray-500 mt-1">Enter the code from the host</p>
         </div>
 
-        <form onSubmit={handleJoinGame} className="space-y-6">
-          <div className="space-y-4">
-            <Input 
-              id="game-code"
-              placeholder="ENTER CODE"
-              value={gameCode}
-              onChange={(e) => setGameCode(e.target.value.toUpperCase())}
-              className="text-center text-4xl tracking-[0.5em] font-black h-20 uppercase border-2 focus:border-indigo-500"
-              required
-              maxLength={6}
-            />
-            
-            <Input
-              id="name"
-              placeholder={isAuthenticated ? `Playing as ${user?.username}` : "Enter Your Name"}
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              className="text-center h-12"
-              required={!isAuthenticated}
-            />
-          </div>
+        <form onSubmit={handleJoinGame} className="space-y-4">
+          <Input 
+            id="game-code"
+            placeholder="ENTER CODE"
+            value={gameCode}
+            onChange={(e) => setGameCode(e.target.value.toUpperCase())}
+            className="text-center text-2xl tracking-[0.3em] font-bold h-14 uppercase"
+            required
+            maxLength={6}
+          />
+          
+          <Input
+            id="name"
+            placeholder={isAuthenticated ? `Playing as ${user?.username}` : "Your Name"}
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            className="h-11"
+            required={!isAuthenticated}
+          />
 
           {error && (
             <motion.p 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-red-400 text-sm text-center bg-red-400/10 py-2 rounded-lg border border-red-400/20"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-red-400 text-sm text-center bg-red-500/10 py-2 rounded-xl border border-red-500/20"
             >
               {error}
             </motion.p>
           )}
 
-          <Button type="submit" className="w-full text-xl h-14" isLoading={isJoining}>
+          <Button type="submit" fullWidth size="lg" isLoading={isJoining}>
             JOIN GAME
           </Button>
         </form>
       </div>
 
-      {/* Features/CTA for Creators */}
       {!isAuthenticated && (
-        <div className="grid md:grid-cols-3 gap-8 w-full max-w-6xl px-4 text-center">
-          <div className="p-6 space-y-3 bg-gray-800/30 rounded-xl border border-gray-700/50">
-            <div className="w-12 h-12 bg-indigo-500/20 text-indigo-400 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">1</div>
-            <h3 className="text-xl font-bold">Create Quizzes</h3>
-            <p className="text-gray-400 text-sm">Use AI to generate questions or write your own.</p>
+        <div className="grid md:grid-cols-3 gap-4 w-full max-w-4xl px-5 text-center">
+          <div className="p-5 space-y-2 bg-gray-900/50 rounded-xl border border-gray-800">
+            <div className="w-10 h-10 bg-indigo-500/10 text-indigo-400 rounded-xl flex items-center justify-center mx-auto font-bold text-lg">1</div>
+            <h3 className="font-semibold text-gray-200">Create Quizzes</h3>
+            <p className="text-sm text-gray-500">Use AI to generate questions or write your own.</p>
           </div>
-          <div className="p-6 space-y-3 bg-gray-800/30 rounded-xl border border-gray-700/50">
-            <div className="w-12 h-12 bg-purple-500/20 text-purple-400 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">2</div>
-            <h3 className="text-xl font-bold">Host Live Sessions</h3>
-            <p className="text-gray-400 text-sm">Control the flow and see live results as they happen.</p>
+          <div className="p-5 space-y-2 bg-gray-900/50 rounded-xl border border-gray-800">
+            <div className="w-10 h-10 bg-purple-500/10 text-purple-400 rounded-xl flex items-center justify-center mx-auto font-bold text-lg">2</div>
+            <h3 className="font-semibold text-gray-200">Host Live Sessions</h3>
+            <p className="text-sm text-gray-500">Control the flow and see live results.</p>
           </div>
-          <div className="p-6 space-y-3 bg-gray-800/30 rounded-xl border border-gray-700/50">
-            <div className="w-12 h-12 bg-pink-500/20 text-pink-400 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">3</div>
-            <h3 className="text-xl font-bold">Track Stats</h3>
-            <p className="text-gray-400 text-sm">See detailed leaderboards and player performance.</p>
+          <div className="p-5 space-y-2 bg-gray-900/50 rounded-xl border border-gray-800">
+            <div className="w-10 h-10 bg-pink-500/10 text-pink-400 rounded-xl flex items-center justify-center mx-auto font-bold text-lg">3</div>
+            <h3 className="font-semibold text-gray-200">Track Stats</h3>
+            <p className="text-sm text-gray-500">See detailed leaderboards and performance.</p>
           </div>
         </div>
       )}

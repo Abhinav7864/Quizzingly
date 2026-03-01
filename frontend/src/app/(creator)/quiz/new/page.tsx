@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -7,7 +6,7 @@ import { Quiz } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Save, ChevronRight, CheckCircle2, Wand2, Upload, FileText, Sparkles } from 'lucide-react';
+import { ArrowLeft, Wand2, Upload, FileText, Sparkles, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function NewQuizPage() {
@@ -63,30 +62,30 @@ export default function NewQuizPage() {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-2xl space-y-6">
+    <div className="container mx-auto p-5 max-w-2xl space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard')}>
-          <ArrowLeft size={20} />
+          <ArrowLeft size={18} />
         </Button>
-        <h1 className="text-3xl font-black text-white">Create New Quiz</h1>
+        <h1 className="text-2xl font-bold text-gray-100">Create New Quiz</h1>
       </div>
 
       <div className="flex p-1 bg-gray-900 rounded-xl border border-gray-800">
         <button
           onClick={() => setGenerationMode('manual')}
-          className={`flex-1 py-2 px-4 rounded-lg font-bold transition-all flex items-center justify-center gap-2 ${
-            generationMode === 'manual' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'
+          className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${
+            generationMode === 'manual' ? 'bg-indigo-500 text-white' : 'text-gray-400 hover:text-gray-200'
           }`}
         >
-          Manual Creation
+          Manual
         </button>
         <button
           onClick={() => setGenerationMode('ai')}
-          className={`flex-1 py-2 px-4 rounded-lg font-bold transition-all flex items-center justify-center gap-2 ${
-            generationMode === 'ai' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'
+          className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${
+            generationMode === 'ai' ? 'bg-indigo-500 text-white' : 'text-gray-400 hover:text-gray-200'
           }`}
         >
-          <Wand2 size={18} /> AI Generator
+          <Wand2 size={16} /> AI Generator
         </button>
       </div>
 
@@ -94,19 +93,19 @@ export default function NewQuizPage() {
         layout
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gray-900 border border-gray-800 p-8 rounded-2xl shadow-xl space-y-6"
+        className="bg-gray-900 border border-gray-800 p-6 rounded-2xl space-y-6"
       >
         <AnimatePresence mode="wait">
           {generationMode === 'manual' ? (
             <motion.div
               key="manual"
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="space-y-6"
+              exit={{ opacity: 0, x: 10 }}
+              className="space-y-5"
             >
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">
+                <label className="text-sm font-medium text-gray-400">
                   Quiz Title
                 </label>
                 <Input
@@ -114,18 +113,20 @@ export default function NewQuizPage() {
                   placeholder="e.g., '80s Rock Anthems'"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="text-2xl font-bold h-16 border-gray-800 focus:border-indigo-500"
+                  className="text-lg font-semibold h-12"
                   required
                   autoFocus
                 />
               </div>
 
-              <div className="pt-4 border-t border-gray-800">
+              <div className="pt-2">
                 <Button 
                   onClick={handleCreateManual}
                   isLoading={isLoading}
                   disabled={!title}
-                  className="w-full h-14 gap-2"
+                  fullWidth
+                  size="lg"
+                  className="gap-2"
                 >
                   Continue to Questions <ChevronRight size={18} />
                 </Button>
@@ -134,18 +135,18 @@ export default function NewQuizPage() {
           ) : (
             <motion.div
               key="ai"
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="space-y-6"
+              exit={{ opacity: 0, x: 10 }}
+              className="space-y-5"
             >
-              <div className="space-y-4">
-                <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-gray-400">
                   Upload PDF Content
                 </label>
                 <div 
-                  className={`border-2 border-dashed rounded-xl p-8 transition-all flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-white/5 ${
-                    file ? 'border-indigo-500 bg-indigo-500/5' : 'border-gray-800'
+                  className={`border-2 border-dashed rounded-xl p-6 transition-all flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-gray-800/50 ${
+                    file ? 'border-indigo-500 bg-indigo-500/5' : 'border-gray-700'
                   }`}
                   onClick={() => document.getElementById('file-upload')?.click()}
                 >
@@ -158,21 +159,21 @@ export default function NewQuizPage() {
                   />
                   {file ? (
                     <>
-                      <FileText className="text-indigo-500" size={48} />
+                      <FileText className="text-indigo-400" size={36} />
                       <div className="text-center">
-                        <p className="font-bold text-white">{file.name}</p>
-                        <p className="text-sm text-gray-400">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                        <p className="font-medium text-gray-200">{file.name}</p>
+                        <p className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                       </div>
                       <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setFile(null); }}>
-                        Change File
+                        Change
                       </Button>
                     </>
                   ) : (
                     <>
-                      <Upload className="text-gray-600" size={48} />
+                      <Upload className="text-gray-600" size={36} />
                       <div className="text-center">
-                        <p className="font-bold text-gray-300">Click to upload or drag and drop</p>
-                        <p className="text-sm text-gray-500 text-balance">PDF files containing the study material</p>
+                        <p className="font-medium text-gray-300">Click to upload PDF</p>
+                        <p className="text-xs text-gray-500">Study material for quiz generation</p>
                       </div>
                     </>
                   )}
@@ -180,26 +181,28 @@ export default function NewQuizPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-400 flex items-center gap-2">
                   AI Prompt <Sparkles size={14} className="text-indigo-400" />
                 </label>
                 <textarea
-                  placeholder="e.g., 'Generate 10 difficult multiple-choice questions focusing on Quantum Mechanics...'"
+                  placeholder="e.g., 'Generate 10 difficult multiple-choice questions focusing on...'"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  className="w-full h-32 bg-black/40 border border-gray-800 rounded-xl p-4 text-white focus:outline-none focus:border-indigo-500 resize-none"
+                  className="w-full h-28 bg-gray-950 border border-gray-700 rounded-xl p-4 text-gray-200 focus:outline-none focus:border-indigo-500 resize-none"
                   required
                 />
               </div>
 
-              <div className="pt-4 border-t border-gray-800">
+              <div className="pt-2">
                 <Button 
                   onClick={handleGenerateAI}
                   isLoading={isLoading}
                   disabled={!file || !prompt}
-                  className="w-full h-14 gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/20"
+                  fullWidth
+                  size="lg"
+                  className="gap-2"
                 >
-                  <Wand2 size={18} /> {isLoading ? 'Generating Quiz...' : 'Generate AI Quiz'}
+                  <Wand2 size={18} /> {isLoading ? 'Generating...' : 'Generate AI Quiz'}
                 </Button>
               </div>
             </motion.div>
@@ -207,11 +210,11 @@ export default function NewQuizPage() {
         </AnimatePresence>
       </motion.div>
       
-      <div className="p-6 bg-gray-900/30 rounded-2xl border border-dashed border-gray-800 text-center">
-        <p className="text-sm text-gray-500 italic">
+      <div className="p-5 bg-gray-900/30 rounded-xl border border-dashed border-gray-800 text-center">
+        <p className="text-sm text-gray-500">
           {generationMode === 'manual' 
             ? "Create your quiz manually and add questions one by one." 
-            : "The AI will analyze your PDF and generate relevant questions automatically."}
+            : "The AI will analyze your PDF and generate relevant questions."}
         </p>
       </div>
     </div>

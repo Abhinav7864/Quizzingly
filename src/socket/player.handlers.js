@@ -56,6 +56,7 @@ export const handleSubmitAnswer = (socket) => {
     }));
 
     socket.emit("server:answer_received");
+    socket.to(gameCode).emit("server:answer_received");
     console.log(`[ANSWER] Player ${socket.id} answered in ${gameCode}`);
   });
 };

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -33,21 +32,26 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-950">
-      <Link href="/" className="mb-8">
-        <span className="text-3xl font-black bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
-          AI QUIZ
-        </span>
+    <div className="min-h-screen flex flex-col items-center justify-center p-5 bg-gray-950">
+      <Link href="/" className="mb-10">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center">
+            <span className="text-white font-bold text-xl">Q</span>
+          </div>
+          <span className="text-2xl font-bold text-gray-100">
+            Quizzingly
+          </span>
+        </div>
       </Link>
 
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md p-8 space-y-8 bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md p-8 bg-gray-900 border border-gray-800 rounded-2xl"
       >
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-white">Create Account</h1>
-          <p className="text-gray-400">Join our community of quiz creators</p>
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-gray-100">Create Account</h1>
+          <p className="text-gray-500 mt-2">Join our community of quiz creators</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -60,60 +64,61 @@ export default function RegisterPage() {
             onChange={(e) => setUsername(e.target.value)}
             required
             autoComplete="username"
-            className="h-12"
           />
           <Input
             id="email"
-            label="Email Address"
+            label="Email"
             type="email"
             placeholder="name@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
-            className="h-12"
           />
           <Input
             id="password"
             label="Password"
             type="password"
-            placeholder="••••••••"
+            placeholder="Create a password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="new-password"
-            className="h-12"
           />
           
           {error && (
-            <p className="text-red-400 text-sm text-center bg-red-400/10 py-2 rounded-lg border border-red-400/20">
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl p-3"
+            >
               {error}
-            </p>
+            </motion.div>
           )}
 
-          <Button type="submit" className="w-full h-12 text-lg" isLoading={loading}>
-            Get Started
+          <Button type="submit" fullWidth size="lg" isLoading={loading}>
+            Create Account
           </Button>
         </form>
 
-        <div className="relative">
+        <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-800"></div>
           </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-gray-900 px-2 text-gray-500">Or sign up with</span>
+          <div className="relative flex justify-center text-xs">
+            <span className="bg-gray-900 px-3 text-gray-500">Already have an account?</span>
           </div>
         </div>
 
         <p className="text-center text-sm text-gray-400">
-          Already have an account?{' '}
-          <Link href="/login" className="font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
-            Log in
+          Already a member?{' '}
+          <Link href="/login" className="font-medium text-indigo-400 hover:text-indigo-300">
+            Sign in
           </Link>
         </p>
       </motion.div>
 
-      <Link href="/" className="mt-8 text-sm text-gray-500 hover:text-gray-400 flex items-center gap-2">
+      <Link href="/" className="mt-8 text-sm text-gray-500 hover:text-gray-400">
         ← Back to home
       </Link>
     </div>
