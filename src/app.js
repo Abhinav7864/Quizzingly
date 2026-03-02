@@ -9,10 +9,14 @@ import { requireAuth } from "./middleware/auth.middleware.js";
 const app = express();
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  origin: [
+    "https://quizzingly-frontend.onrender.com"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true
 }));
-console.log("[Setup] CORS middleware initialized");
+app.options("*", cors());
+console.log("[Setup] CORS middleware initialized with Render origin");
 
 app.use(express.json());
 console.log("[Setup] JSON parsing middleware initialized");
