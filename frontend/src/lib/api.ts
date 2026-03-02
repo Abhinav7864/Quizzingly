@@ -1,6 +1,6 @@
 import { User } from '@/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4002';
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 type ApiOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -29,7 +29,7 @@ const api = async <T>(endpoint: string, options: ApiOptions = {}): Promise<T> =>
 
   let response;
   try {
-    response = await fetch(url, {
+    response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}${endpoint}`, {
       method,
       headers,
       body: body instanceof FormData ? body : (body ? JSON.stringify(body) : null),
