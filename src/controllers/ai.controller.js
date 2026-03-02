@@ -5,11 +5,13 @@ const require = createRequire(import.meta.url);
 const pdf = require("pdf-parse");
 const { Groq } = require("groq-sdk");
 import prisma from "../db/prisma.js";
-import dotenv from "dotenv";
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+
+if (process.env.NODE_ENV !== "production") {
+  const dotenv = await import("dotenv");
+  dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+}
 
 export const generateQuizAI = async (req, res) => {
   console.log("--- Generate Quiz AI Started ---");

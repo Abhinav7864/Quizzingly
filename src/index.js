@@ -1,4 +1,7 @@
-import "dotenv/config";
+if (process.env.NODE_ENV !== "production") {
+  const dotenv = await import("dotenv");
+  dotenv.config();
+}
 import http from "http";
 import { Server } from "socket.io";
 import app from "./app.js";
