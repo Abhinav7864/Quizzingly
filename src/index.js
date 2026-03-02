@@ -5,6 +5,23 @@ import app from "./app.js";
 import { registerSocketHandlers } from "./socket/index.js";
 import { redis } from "./redis/client.js";
 
+import prisma from "./db/prisma.js";
+
+async function debugDB() {
+  try {
+    const tables = await prisma.$queryRaw`
+      SELECT tablename 
+      FROM pg_tables 
+      WHERE schemaname='public';
+    `;
+    console.log("TABLES IN CURRENT DB:", tables);
+  } catch (err) {
+    console.error("Database debug failed:", err.message);
+  }
+}
+
+debugDB();
+
 const PORT = process.env.PORT || 4002;
 
 const server = http.createServer(app);
