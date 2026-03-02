@@ -44,8 +44,8 @@ export const Header = () => {
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-gray-950/95 backdrop-blur-md border-b border-gray-800 py-3' : 'bg-transparent py-5'}`}>
-      <div className="container mx-auto px-5 flex justify-between items-center max-w-6xl">
-        <Link href="/" className="flex items-center gap-3 group">
+      <div className="w-full px-6 md:px-10 flex justify-between items-center">
+        <Link href="/" className="flex items-center gap-3 group shrink-0">
           <div className="w-9 h-9 bg-indigo-500 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
             <span className="text-white font-bold text-lg">Q</span>
           </div>
@@ -54,29 +54,31 @@ export const Header = () => {
           </span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-1">
-          {navLinks.map((link) => {
-            if (link.private && !isAuthenticated) return null;
-            const isActive = pathname === link.href;
-            return (
-              <Link 
-                key={link.name} 
-                href={link.href}
-                onClick={link.onClick}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  isActive 
-                    ? 'text-indigo-400 bg-indigo-500/10' 
-                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
-                }`}
-              >
-                {link.icon}
-                {link.name}
-              </Link>
-            );
-          })}
+        <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
+          <div className="flex items-center gap-1">
+            {navLinks.map((link) => {
+              if (link.private && !isAuthenticated) return null;
+              const isActive = pathname === link.href;
+              return (
+                <Link 
+                  key={link.name} 
+                  href={link.href}
+                  onClick={link.onClick}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                    isActive 
+                      ? 'text-indigo-400 bg-indigo-500/10' 
+                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                  }`}
+                >
+                  {link.icon}
+                  {link.name}
+                </Link>
+              );
+            })}
+          </div>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           {!isLoading && (
             isAuthenticated ? (
               <div className="flex items-center gap-3">
@@ -86,7 +88,8 @@ export const Header = () => {
                     {user?.username || user?.email?.split('@')[0]}
                   </span>
                 </div>
-                <Button variant="ghost" size="sm" onClick={logout} className="text-gray-400 hover:text-red-400">
+                <Button variant="ghost" size="sm" onClick={logout} className="text-gray-400 hover:text-red-400 flex items-center gap-2 pr-2">
+                  <span className="text-xs font-medium uppercase tracking-wider">Exit</span>
                   <LogOut size={18} />
                 </Button>
               </div>
