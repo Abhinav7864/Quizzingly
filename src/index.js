@@ -11,7 +11,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["https://quizzingly-frontend.onrender.com"],
+    origin: "https://quizzingly-frontend.onrender.com",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true
   },
