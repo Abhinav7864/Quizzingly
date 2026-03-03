@@ -8,13 +8,13 @@ export const handleJoinGame = (socket) => {
       return;
     }
 
-    const started = await redis.hGet(`game:${gameCode}`, "started");
+    const started = await redis.hget(`game:${gameCode}`, "started");
     if (started === "true") {
       socket.emit("server:error", { message: "Game already started" });
       return;
     }
 
-    await redis.hSet(`players:${gameCode}`, socket.id, JSON.stringify({
+    await redis.hset(`players:${gameCode}`, socket.id, JSON.stringify({
       name,
       score: 0,
       answersCorrect: 0,
@@ -22,16 +22,13 @@ export const handleJoinGame = (socket) => {
       userId: userId ?? null,
     }));
 
-    await redis.zAdd(`leaderboard:${gameCode}`, {
-      score: 0,
-      value: socket.id,
-    });
+    await redis.zadd(`leaderboard:${gameCode}`, 0, socket.id);
 
     await redis.set(`socket:${socket.id}`, gameCode);
 
     socket.join(gameCode);
 
-    const players = await redis.hVals(`players:${gameCode}`);
+    const players = await redis.hvals(`players:${gameCode}`);
     const names = players.map(p => JSON.parse(p).name);
 
     global.io.to(gameCode).emit("server:player_list_update", names);
@@ -44,13 +41,13 @@ export const handleJoinGame = (socket) => {
 
 export const handleSubmitAnswer = (socket) => {
   socket.on("player:submit_answer", async ({ gameCode, optionId }) => {
-    const game = await redis.hGetAll(`game:${gameCode}`);
+    const game = await redis.hgetall(`game:${gameCode}`);
     if (!game || game.started !== "true") return;
 
-    const hasAnswered = await redis.hExists(`answers:${gameCode}`, socket.id);
+    const hasAnswered = await redis.hexists(`answers:${gameCode}`, socket.id);
     if (hasAnswered) return;
 
-    await redis.hSet(`answers:${gameCode}`, socket.id, JSON.stringify({
+    await redis.hset(`answers:${gameCode}`, socket.id, JSON.stringify({
       optionId,
       timestamp: Date.now()
     }));
@@ -66,17 +63,17 @@ export const handleDisconnect = (socket) => {
     const gameCode = await redis.get(`socket:${socket.id}`);
 
     if (gameCode) {
-      const game = await redis.hGetAll(`game:${gameCode}`);
+      const game = await redis.hgetall(`game:${gameCode}`);
 
       if (game) {
-        const playerJson = await redis.hGet(`players:${gameCode}`, socket.id);
+        const playerJson = await redis.hget(`players:${gameCode}`, socket.id);
 
         if (playerJson) {
           const player = JSON.parse(playerJson);
-          await redis.hDel(`players:${gameCode}`, socket.id);
-          await redis.zRem(`leaderboard:${gameCode}`, socket.id);
+          await redis.hdel(`players:${gameCode}`, socket.id);
+          await redis.zrem(`leaderboard:${gameCode}`, socket.id);
 
-          const players = await redis.hVals(`players:${gameCode}`);
+          const players = await redis.hvals(`players:${gameCode}`);
           const names = players.map(p => JSON.parse(p).name);
 
           socket.to(gameCode).emit("server:player_list_update", names);

@@ -9,7 +9,7 @@ export const handleCreateGame = (socket) => {
     
     const gameCode = generateJoinCode();
 
-    await redis.hSet(`game:${gameCode}`, {
+    await redis.hset(`game:${gameCode}`, {
       hostSocketId: socket.id,
       quizId,
       started: "false",
@@ -28,7 +28,7 @@ export const handleCreateGame = (socket) => {
 
 export const handleStartGame = (socket) => {
   socket.on("host:start_game", async ({ gameCode }) => {
-    const game = await redis.hGetAll(`game:${gameCode}`);
+    const game = await redis.hgetall(`game:${gameCode}`);
 
     if (!game || game.hostSocketId !== socket.id) {
       socket.emit("server:error", { message: "Not authorized" });
@@ -49,7 +49,7 @@ export const handleStartGame = (socket) => {
       return;
     }
 
-    await redis.hSet(`game:${gameCode}`, {
+    await redis.hset(`game:${gameCode}`, {
       started: "true",
       currentQuestionIndex: "0",
     });
@@ -62,7 +62,7 @@ export const handleStartGame = (socket) => {
 
 export const handleNextQuestion = (socket) => {
   socket.on("host:next_question", async ({ gameCode }) => {
-    const game = await redis.hGetAll(`game:${gameCode}`);
+    const game = await redis.hgetall(`game:${gameCode}`);
 
     if (!game || game.hostSocketId !== socket.id) {
       socket.emit("server:error", { message: "Not authorized" });

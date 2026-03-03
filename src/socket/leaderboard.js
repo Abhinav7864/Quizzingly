@@ -1,19 +1,19 @@
 import { redis } from "../redis/client.js";
 
 export const sendLeaderboard = async (gameCode) => {
-  const leaderboardData = await redis.zRangeWithScores(
+  const leaderboardData = await redis.zrange(
     `leaderboard:${gameCode}`,
     0,
     -1,
-    { REV: true }
+    'WITHSCORES'
   );
 
   const leaderboard = [];
-  const players = await redis.hGetAll(`players:${gameCode}`);
+  const players = await redis.hgetall(`players:${gameCode}`);
 
-  for (const entry of leaderboardData) {
-    const socketId = entry.value;
-    const score = parseInt(entry.score);
+  for (let i = 0; i < leaderboardData.length; i += 2) {
+    const socketId = leaderboardData[i];
+    const score = parseInt(leaderboardData[i + 1]);
     const playerJson = players[socketId];
     if (playerJson) {
       const player = JSON.parse(playerJson);
@@ -23,6 +23,9 @@ export const sendLeaderboard = async (gameCode) => {
       });
     }
   }
+
+  // Sort descending manually as ioredis zrange 0 -1 returns ascending
+  leaderboard.sort((a, b) => b.score - a.score);
 
   global.io.to(gameCode).emit("server:leaderboard_update", leaderboard);
 };
