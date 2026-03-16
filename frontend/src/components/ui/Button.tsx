@@ -19,39 +19,41 @@ export const Button = ({
   ...props
 }: ButtonProps) => {
   const base = [
-    'inline-flex items-center justify-center font-semibold transition-all duration-150',
-    'focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(255,49,159,0.4)]',
-    'disabled:opacity-40 disabled:cursor-not-allowed',
-    'select-none active:scale-[0.98]',
+    'inline-flex items-center justify-center font-bold transition-all duration-150',
+    'focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2',
+    'disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0',
+    'select-none',
   ].join(' ');
 
   const variants = {
     primary: [
-      'bg-[var(--primary)] text-white shadow-sm',
-      'hover:bg-[var(--primary-hover)] hover:shadow-md hover:shadow-[rgba(255,49,159,0.2)]',
+      'bg-[var(--primary)] text-white border-2 border-black shadow-[4px_4px_0px_black]',
+      'hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black]',
+      'active:translate-x-[4px] active:translate-y-[4px] active:shadow-none',
     ].join(' '),
     secondary: [
-      'bg-[#EDE9D5] text-[#3B142A] border border-[#E5E0C9] shadow-sm',
-      'hover:bg-[#E5E0C9] hover:shadow-md transition-all',
+      'bg-white text-[var(--text-primary)] border-2 border-black shadow-[4px_4px_0px_black]',
+      'hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black]',
+      'active:translate-x-[4px] active:translate-y-[4px] active:shadow-none',
     ].join(' '),
     ghost: [
-      'bg-transparent text-[#8A846B] font-bold',
-      'hover:bg-[#EDE9D5] hover:text-[#3B142A]',
+      'bg-transparent text-[#6B6B6B] border-2 border-transparent',
+      'hover:bg-[#F0F0F0] hover:text-[#1E1E1E]',
     ].join(' '),
     outline: [
-      'bg-transparent border-2 border-[#E5E0C9] text-[#3B142A] font-bold',
-      'hover:border-[#FF319F] hover:text-[#FF319F] hover:bg-[#FF319F]/5',
+      'bg-transparent border-2 border-black text-[#1E1E1E] shadow-[4px_4px_0px_black]',
+      'hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] hover:border-[var(--primary)] hover:text-[var(--primary)]',
     ].join(' '),
     danger: [
-      'bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/20 font-bold',
-      'hover:bg-[#EF4444]/15',
+      'bg-[#EF4444]/10 text-[#EF4444] border-2 border-[#EF4444] shadow-[4px_4px_0px_#EF4444]',
+      'hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#EF4444] hover:bg-[#EF4444]/15',
     ].join(' '),
   };
 
   const sizes = {
-    sm: 'h-8 px-3 text-[13px] rounded-xl gap-2',
-    md: 'h-10 px-5 text-[14px] rounded-2xl gap-2',
-    lg: 'h-12 px-7 text-[15px] rounded-2xl gap-2.5',
+    sm: 'h-8 px-3 text-[13px] rounded-lg gap-2',
+    md: 'h-10 px-5 text-[14px] rounded-xl gap-2',
+    lg: 'h-12 px-7 text-[15px] rounded-xl gap-2.5',
   };
 
   return (

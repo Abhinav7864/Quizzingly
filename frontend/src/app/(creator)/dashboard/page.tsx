@@ -40,31 +40,32 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-base)] pt-28 pb-10">
+    <div className="min-h-screen pt-28 pb-16">
       <div className="w-full max-w-5xl mx-auto px-4 sm:px-6">
+
         {/* Header Row */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-baseline gap-3">
-            <h1 className="text-xl font-bold text-[var(--text-primary)]">My Quizzes</h1>
-            <span className="text-[13px] text-[var(--text-muted)] font-medium uppercase tracking-wider">
+            <h1 className="text-2xl font-black text-[#1E1E1E]">My Quizzes</h1>
+            <span className="text-[13px] font-bold text-[#6B6B6B] uppercase tracking-wider">
               {quizzes?.length || 0} Total
             </span>
           </div>
           <Link href="/quiz/new">
-            <Button size="md" className="gap-2">
+            <Button size="md" id="new-quiz-btn" className="gap-2">
               <Plus size={16} strokeWidth={2.5} /> New quiz
             </Button>
           </Link>
         </div>
 
-        {/* Thin Divider */}
-        <div className="h-px bg-[var(--border)] mb-8" />
+        {/* Divider */}
+        <div className="h-[2px] bg-black mb-8 shadow-[0_2px_0px_rgba(0,0,0,0.08)]" />
 
         {/* Quiz List / Empty State */}
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-[64px] bg-white/5 border border-white/5 rounded-2xl animate-pulse" />
+              <div key={i} className="h-[66px] bg-white border-2 border-black/20 rounded-xl animate-pulse shadow-[4px_4px_0px_rgba(0,0,0,0.08)]" />
             ))}
           </div>
         ) : quizzes && quizzes.length > 0 ? (
@@ -75,16 +76,16 @@ export default function DashboardPage() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.05 }}
-                className="group flex items-center justify-between h-[64px] px-6 bg-[#F3EFDA] border border-[#E5E0C9] rounded-3xl hover:border-[#FF319F]/30 hover:bg-[#EDE9D5] transition-all shadow-xl hover:-translate-y-0.5"
+                className="group flex items-center justify-between h-[66px] px-6 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_black] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_black] transition-all"
               >
                 <div className="flex items-center gap-5 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-[#EDE9D5] text-[#8A846B] flex items-center justify-center shrink-0 group-hover:bg-[#FF319F]/10 group-hover:text-[#FF319F] transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-[#F6F6F6] border-2 border-black text-[#1E1E1E] flex items-center justify-center shrink-0 group-hover:bg-[var(--primary)] group-hover:text-white group-hover:border-[var(--primary)] transition-colors shadow-[2px_2px_0px_black] group-hover:shadow-[2px_2px_0px_black]">
                     <span className="text-[12px] font-black">{idx + 1}</span>
                   </div>
-                  <h3 className="text-[15px] font-black text-[#3B142A] truncate tracking-tight">{quiz.title}</h3>
-                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 bg-[#FF319F]/5 border border-[#FF319F]/15 rounded-full shrink-0">
-                    <div className="w-1 h-1 rounded-full bg-[#FF319F]" />
-                    <span className="text-[11px] font-bold text-[#FF319F] uppercase tracking-wider">
+                  <h3 className="text-[15px] font-black text-[#1E1E1E] truncate tracking-tight">{quiz.title}</h3>
+                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 bg-[var(--primary)]/10 border-2 border-[var(--primary)] rounded-full shrink-0">
+                    <div className="w-1 h-1 rounded-full bg-[var(--primary)]" />
+                    <span className="text-[11px] font-black text-[var(--primary)] uppercase tracking-wider">
                       {quiz._count?.questions ?? 0} Qs
                     </span>
                   </div>
@@ -92,7 +93,7 @@ export default function DashboardPage() {
 
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-2 group-hover:translate-x-0">
                   <Link href={`/quiz/${quiz.id}`}>
-                    <Button variant="ghost" size="sm" className="gap-1.5 h-8 text-[#8A846B] hover:text-[#3B142A] hover:bg-[#EDE9D5]">
+                    <Button variant="ghost" size="sm" className="gap-1.5 h-8">
                       <Edit3 size={14} /> Edit
                     </Button>
                   </Link>
@@ -116,14 +117,19 @@ export default function DashboardPage() {
             className="flex flex-col items-center justify-center py-24 text-center"
           >
             <Link href="/quiz/new">
-              <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mb-6 hover:bg-[#FF319F]/10 hover:scale-105 transition-all cursor-pointer">
-                <Plus size={32} className="text-[#FF319F]" />
+              <div className="w-20 h-20 bg-white border-2 border-black rounded-2xl flex items-center justify-center mb-6 shadow-[6px_6px_0px_black] hover:-translate-y-1 hover:shadow-[8px_8px_0px_black] transition-all cursor-pointer">
+                <Plus size={36} className="text-[var(--primary)]" />
               </div>
             </Link>
-            <h2 className="text-[18px] font-bold text-white mb-2">Create your first quiz</h2>
-            <p className="text-[14px] text-white/50 max-w-xs mb-8">
+            <h2 className="text-[20px] font-black text-[#1E1E1E] mb-3">Create your first quiz</h2>
+            <p className="text-[14px] text-[#6B6B6B] font-medium max-w-xs mb-8">
               Start building your collection of quizzes and host live sessions for your audience.
             </p>
+            <Link href="/quiz/new">
+              <Button size="lg">
+                <Plus size={18} strokeWidth={2.5} /> New Quiz
+              </Button>
+            </Link>
           </motion.div>
         )}
       </div>

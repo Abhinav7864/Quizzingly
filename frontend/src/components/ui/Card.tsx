@@ -8,10 +8,10 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 export const Card = ({ children, className = '', hoverable = false, ...props }: CardProps) => (
   <div
     className={[
-      'bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl',
-      'transition-all duration-200 overflow-hidden shadow-xl shadow-[rgba(0,0,0,0.08)]',
+      'bg-white border-2 border-black rounded-xl',
+      'shadow-[6px_6px_0px_black] transition-all duration-200 overflow-hidden',
       hoverable
-        ? 'hover:border-[var(--primary)]/30 hover:bg-[var(--bg-elevated)] hover:shadow-xl cursor-pointer active:scale-[0.99]'
+        ? 'hover:-translate-y-1 hover:shadow-[8px_8px_0px_black] cursor-pointer active:translate-y-0 active:shadow-[4px_4px_0px_black]'
         : '',
       className,
     ].join(' ')}
@@ -39,10 +39,10 @@ interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export const CardHeader = ({ children, title, subtitle, className = '', ...props }: CardHeaderProps) => (
   <div
-    className={`px-5 py-4 border-b border-[var(--border)] ${className}`}
+    className={`px-5 py-4 border-b-2 border-black ${className}`}
     {...props}
   >
-    {title && <h3 className="text-[14px] font-semibold text-[var(--text-primary)]">{title}</h3>}
+    {title && <h3 className="text-[14px] font-bold text-[var(--text-primary)]">{title}</h3>}
     {subtitle && <p className="text-[12px] text-[var(--text-muted)] mt-0.5">{subtitle}</p>}
     {children}
   </div>
@@ -50,7 +50,7 @@ export const CardHeader = ({ children, title, subtitle, className = '', ...props
 
 export const CardFooter = ({ children, className = '', ...props }: CardBodyProps) => (
   <div
-    className={`px-5 py-4 border-t border-[var(--border)] flex items-center gap-2 ${className}`}
+    className={`px-5 py-4 border-t-2 border-black flex items-center gap-2 ${className}`}
     {...props}
   >
     {children}
