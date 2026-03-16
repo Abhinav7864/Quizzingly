@@ -56,15 +56,15 @@ export default function NewQuizPage() {
           <h1 className="text-lg font-semibold text-[var(--text-primary)] mb-6">New Quiz</h1>
 
           {/* Mode Toggle */}
-          <div className="flex p-1.5 bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl mb-10 relative">
+          <div className="flex p-1.5 bg-white border-2 border-black rounded-xl mb-10 relative shadow-[4px_4px_0px_black]">
             {(['manual', 'ai'] as const).map((m) => (
               <button
                 key={m}
                 onClick={() => setMode(m)}
-                className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-xl text-[13px] font-bold transition-all z-10 ${
+                className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-lg text-[13px] font-bold transition-all z-10 ${
                   mode === m
-                    ? 'text-[var(--text-primary)]'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    ? 'text-[#1E1E1E]'
+                    : 'text-[#6B6B6B] hover:text-[#1E1E1E]'
                 }`}
               >
                 {m === 'ai' && <motion.div animate={{ rotate: [0, 15, 0] }} transition={{ repeat: Infinity, duration: 2 }}><Wand2 size={14} /></motion.div>}
@@ -72,7 +72,7 @@ export default function NewQuizPage() {
                 {mode === m && (
                   <motion.div
                     layoutId="mode-bg"
-                    className="absolute inset-y-1.5 bg-[var(--bg-elevated)] rounded-xl -z-10 shadow-sm"
+                    className="absolute inset-y-1.5 bg-[#FFD166] border-2 border-black rounded-lg -z-10 shadow-[3px_3px_0px_black]"
                     style={{ width: 'calc(50% - 6px)', left: m === 'manual' ? '6px' : 'calc(50%)' }}
                     transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
                   />
@@ -131,10 +131,10 @@ export default function NewQuizPage() {
                     </label>
                       <div
                         onClick={() => document.getElementById('pdf-upload')?.click()}
-                        className={`flex flex-col items-center justify-center gap-3 p-8 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
+                        className={`flex flex-col items-center justify-center gap-3 p-8 border-2 border-dashed border-black rounded-xl cursor-pointer transition-all shadow-[4px_4px_0px_black] ${
                           file
-                            ? 'bg-[var(--primary)]/5 border-[var(--primary)]/30'
-                            : 'bg-transparent border-[var(--border)] hover:border-[var(--primary)]/30'
+                            ? 'bg-[var(--primary)]/5 border-[var(--primary)]'
+                            : 'bg-white hover:border-[var(--primary)] hover:shadow-[4px_4px_0px_var(--primary)]'
                         }`}
                       >
                         <input
@@ -183,7 +183,7 @@ export default function NewQuizPage() {
                       value={prompt}
                       onChange={(e) => setPrompt(e.target.value)}
                       placeholder="e.g. Create 10 challenging questions focusing on React hooks..."
-                      className="w-full h-[96px] p-4 text-[14px] text-[var(--text-primary)] bg-transparent border border-[var(--border)] rounded-xl focus:border-[var(--primary)]/50 outline-none transition-all resize-none placeholder:text-[var(--text-muted)]"
+                      className="w-full h-[96px] p-4 text-[14px] text-[var(--text-primary)] bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_black] focus:border-[var(--primary)] focus:shadow-[4px_4px_0px_var(--primary)] outline-none transition-all resize-none placeholder:text-[var(--text-muted)]"
                     />
                   </div>
 

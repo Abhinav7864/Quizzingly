@@ -12,15 +12,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 /* ── Lobby ─────────────────────────────────────────── */
 const Lobby = ({ gameCode, players }: { gameCode: string; players: string[] }) => (
   <div className="space-y-10">
-    <Card className="p-16 text-center border-[var(--border)] bg-[var(--bg-surface)] shadow-2xl rounded-[40px] relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent opacity-20" />
-      <p className="text-[12px] font-black text-[var(--primary)] uppercase tracking-[0.4em] mb-6 animate-pulse">
+    <div className="p-16 text-center bg-[#FFD166] border-2 border-black shadow-[6px_6px_0px_black] rounded-xl">
+      <p className="text-[12px] font-black text-black uppercase tracking-[0.4em] mb-6 animate-pulse">
         Waiting for players
       </p>
-      <h1 className="font-mono text-8xl md:text-9xl font-black tracking-[0.2em] text-[var(--text-primary)] leading-none drop-shadow-sm">
+      <h1 className="font-mono text-8xl md:text-9xl font-black tracking-[0.2em] text-[#1E1E1E] leading-none">
         {gameCode}
       </h1>
-    </Card>
+    </div>
 
     <div>
       <div className="flex items-center justify-between mb-4 px-2">
@@ -31,7 +30,7 @@ const Lobby = ({ gameCode, players }: { gameCode: string; players: string[] }) =
         <span className="text-[13px] font-mono text-[var(--text-secondary)] font-bold">{players.length} JOINED</span>
       </div>
 
-      <div className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-2xl p-6 min-h-[160px]">
+      <div className="bg-white border-2 border-black rounded-xl p-6 min-h-[160px] shadow-[4px_4px_0px_black]">
         {players.length > 0 ? (
           <div className="flex flex-wrap gap-2.5">
             <AnimatePresence>
@@ -40,7 +39,7 @@ const Lobby = ({ gameCode, players }: { gameCode: string; players: string[] }) =
                   key={i}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="px-4 py-2 bg-[var(--bg-surface)] border border-[var(--border)] rounded-full text-[13px] text-[var(--text-primary)] font-semibold shadow-sm"
+                  className="px-4 py-2 bg-white border-2 border-black rounded-full text-[13px] text-[#1E1E1E] font-bold shadow-[2px_2px_0px_black]"
                 >
                   {name}
                 </motion.span>
@@ -65,7 +64,7 @@ const QuestionView = ({ question, playersAnswered, totalPlayers }: {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between px-6 py-4 bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl shadow-md">
+      <div className="flex items-center justify-between px-6 py-4 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_black]">
         <div className="flex items-center gap-3">
           <div className="relative flex h-3 w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-60" />
@@ -91,7 +90,7 @@ const QuestionView = ({ question, playersAnswered, totalPlayers }: {
         {question.options.map((opt: any, i: number) => (
           <div
             key={opt.id}
-            className="flex items-center gap-4 p-6 bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl transition-all shadow-sm"
+            className="flex items-center gap-4 p-6 bg-white border-2 border-black rounded-xl transition-all shadow-[4px_4px_0px_black]"
             style={{ borderLeftWidth: '6px', borderLeftColor: colors[i % 4] }}
           >
             <div
@@ -112,7 +111,7 @@ const QuestionView = ({ question, playersAnswered, totalPlayers }: {
 const LeaderboardView = ({ leaderboard, onNext }: { leaderboard: any[]; onNext: () => void }) => (
   <div className="space-y-8 max-w-xl mx-auto">
     <div className="text-center">
-      <div className="w-16 h-16 bg-[var(--primary)]/5 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[var(--primary)]/10 shadow-sm">
+      <div className="w-16 h-16 bg-[#FFD166] rounded-xl flex items-center justify-center mx-auto mb-4 border-2 border-black shadow-[4px_4px_0px_black]">
         <Trophy size={32} className="text-[var(--primary)]" />
       </div>
       <h2 className="text-2xl font-bold text-[var(--text-primary)]">Current Standings</h2>
@@ -125,10 +124,10 @@ const LeaderboardView = ({ leaderboard, onNext }: { leaderboard: any[]; onNext: 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: i * 0.1 }}
-          className={`flex items-center justify-between px-6 py-4 rounded-2xl border transition-all ${
+          className={`flex items-center justify-between px-6 py-4 rounded-xl border-2 border-black transition-all ${
             i === 0
-              ? 'bg-[var(--primary)]/5 border-[var(--primary)]/20 scale-[1.02] shadow-md'
-              : 'bg-[var(--bg-surface)] border-[var(--border)]'
+              ? 'bg-[#FFD166] scale-[1.02] shadow-[6px_6px_0px_black]'
+              : 'bg-white shadow-[4px_4px_0px_black]'
           }`}
         >
           <div className="flex items-center gap-4">
@@ -158,7 +157,7 @@ const GameOverView = ({ leaderboard, onDashboard }: { leaderboard: any[]; onDash
     <div>
       <div className="relative inline-block mb-6">
         <Trophy size={64} className="text-[var(--primary)] mx-auto animate-bounce" />
-        <div className="absolute inset-0 bg-[var(--primary)]/10 blur-3xl rounded-full -z-10" />
+  
       </div>
       <h2 className="text-4xl font-black text-[var(--text-primary)] uppercase tracking-tight">Final Results</h2>
       <p className="text-[15px] text-[var(--text-secondary)] font-medium mt-2">Session Complete</p>
@@ -168,10 +167,10 @@ const GameOverView = ({ leaderboard, onDashboard }: { leaderboard: any[]; onDash
       {leaderboard.slice(0, 5).map((p, i) => (
         <div
           key={p.name}
-          className={`flex items-center justify-between px-6 py-5 rounded-2xl border ${
+          className={`flex items-center justify-between px-6 py-5 rounded-xl border-2 border-black ${
             i === 0 
-              ? 'bg-[var(--primary)] border-transparent text-white shadow-xl' 
-              : 'bg-[var(--bg-surface)] border-[var(--border)] text-[var(--text-primary)]'
+              ? 'bg-[#F55CA7] text-white shadow-[6px_6px_0px_black]' 
+              : 'bg-white text-[#1E1E1E] shadow-[4px_4px_0px_black]'
           }`}
         >
           <div className="flex items-center gap-4">

@@ -23,15 +23,15 @@ const QuestionItem = ({
   onEdit: () => void; 
   onDelete: () => void; 
 }) => (
-  <div className="bg-[#F3EFDA] p-6 rounded-[32px] border-[#E5E0C9] flex justify-between items-center group hover:border-[#FF319F]/30 transition-all shadow-xl">
+  <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_black] flex justify-between items-center group hover:shadow-[6px_6px_0px_black] hover:-translate-y-0.5 transition-all">
     <div className="flex items-center gap-4">
-      <div className="w-10 h-10 rounded-xl bg-[#EDE9D5] flex items-center justify-center shrink-0 text-[#8A846B] font-mono font-bold text-sm">
+      <div className="w-10 h-10 rounded-xl bg-[#F6F6F6] border-2 border-black flex items-center justify-center shrink-0 text-[#6B6B6B] font-mono font-bold text-sm shadow-[2px_2px_0px_black]">
         Q{index + 1}
       </div>
-      <p className="font-bold text-[#3B142A]">{question.text}</p>
+      <p className="font-bold text-[#1E1E1E]">{question.text}</p>
     </div>
     <div className="flex gap-2 transition-all">
-      <Button variant="outline" size="sm" className="text-[#8A846B] border-[#E5E0C9] hover:text-[#3B142A] hover:bg-[#EDE9D5]" onClick={onEdit}>Edit</Button>
+      <Button variant="outline" size="sm" onClick={onEdit}>Edit</Button>
       <Button variant="danger" size="sm" onClick={onDelete}>Delete</Button>
     </div>
   </div>
@@ -113,8 +113,8 @@ export default function EditQuizPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="w-12 h-12 border-4 border-white/10 border-t-[#FF319F] rounded-full animate-spin mx-auto" />
-          <p className="text-lg font-black text-white animate-pulse tracking-tight">Loading quiz...</p>
+          <div className="w-12 h-12 border-4 border-black/10 border-t-[var(--primary)] rounded-full animate-spin mx-auto" />
+          <p className="text-lg font-black text-[#1E1E1E] tracking-tight">Loading quiz...</p>
         </div>
       </div>
     );
@@ -122,49 +122,48 @@ export default function EditQuizPage() {
   
   if (!quiz) return (
     <div className="min-h-screen flex items-center justify-center">
-      <p className="text-center font-bold text-white/50">Quiz not found.</p>
+      <p className="text-center font-bold text-[#6B6B6B]">Quiz not found.</p>
     </div>
   );
 
   return (
     <div className="min-h-screen pt-28 pb-12 relative z-10">
       <div className="w-full max-w-5xl mx-auto px-4 sm:px-6">
-        <Card className="p-8 mb-8 border-[#E5E0C9] shadow-2xl bg-[#F3EFDA]">
+        <Card className="p-8 mb-8">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard')} className="rounded-full w-10 h-10 px-0 text-[#8A846B] hover:text-[#3B142A] hover:bg-[#EDE9D5]">
+              <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard')} className="rounded-full w-10 h-10 px-0">
                 <ArrowLeft size={18} />
               </Button>
               <div>
-                <p className="text-[11px] font-black text-[#FF319F] uppercase tracking-[0.2em] mb-1">Editor</p>
-                <h1 className="text-2xl font-black text-[#3B142A] tracking-tight">Edit Quiz</h1>
+                <p className="text-[11px] font-black text-[var(--primary)] uppercase tracking-[0.2em] mb-1">Editor</p>
+                <h1 className="text-2xl font-black text-[#1E1E1E] tracking-tight">Edit Quiz</h1>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Button 
                 variant="danger"
                 size="md"
-                className="font-bold bg-black/5 text-[#EF4444] border-transparent hover:bg-black/10"
                 onClick={handleDeleteQuiz}
               >
                 Delete Quiz
               </Button>
               <Button 
                 onClick={() => router.push('/dashboard')}
-                className="gap-2 px-6 font-bold shadow-lg shadow-[#FF319F]/30"
+                className="gap-2"
               >
                 <Save size={18} /> Save to Hub
               </Button>
             </div>
           </div>
           <div className="space-y-3">
-             <span className="text-[11px] font-black text-[#8A846B] uppercase tracking-[0.2em] ml-1">Quiz Title</span>
+             <span className="text-[11px] font-black text-[#6B6B6B] uppercase tracking-[0.2em] ml-1">Quiz Title</span>
              <Input
                id="quiz-title"
                value={title}
                onChange={(e) => setTitle(e.target.value)}
                onBlur={handleTitleBlur}
-               className="text-xl font-black h-16 bg-[#EDE9D5] border-transparent text-[#3B142A] rounded-2xl"
+               className="text-xl font-black h-16"
              />
           </div>
         </Card>
@@ -181,7 +180,7 @@ export default function EditQuizPage() {
                 onDelete={() => handleDeleteQuestion(question.id)}
               />
               {editingQuestion?.id === question.id && (
-                <div className="bg-[#F3EFDA] p-8 rounded-[32px] border-2 border-[#FF319F]/30 shadow-2xl">
+                <div className="bg-white p-8 rounded-xl border-2 border-[var(--primary)] shadow-[6px_6px_0px_var(--primary)]">
                   <QuestionForm 
                     quizId={quizId}
                     questionToEdit={editingQuestion}
@@ -197,10 +196,10 @@ export default function EditQuizPage() {
 
         {!editingQuestion && (
           <div>
-            <h2 className="text-2xl font-black mb-6 border-t border-white/10 pt-10 text-white tracking-tight">
+            <h2 className="text-2xl font-black mb-6 border-t-2 border-black pt-10 text-[#1E1E1E] tracking-tight">
               Add New Question
             </h2>
-            <div className="bg-[#F3EFDA] p-10 rounded-[40px] border border-[#E5E0C9] shadow-2xl relative">
+            <div className="bg-white p-10 rounded-xl border-2 border-black shadow-[6px_6px_0px_black]">
               <QuestionForm 
                 quizId={quizId}
                 questionToEdit={null}

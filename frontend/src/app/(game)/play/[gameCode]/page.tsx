@@ -12,14 +12,14 @@ import { CheckCircle2, XCircle, Trophy, Timer, Loader2, Lock } from 'lucide-reac
 /* ── Lobby ─────────────────────────────────────────── */
 const Lobby = ({ players }: { players: string[] }) => (
   <div className="text-center py-4 space-y-6">
-    <div className="w-16 h-16 bg-[var(--primary)]/10 border border-[var(--primary)]/20 rounded-2xl flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)]">
+    <div className="w-16 h-16 bg-[#FFD166] border-2 border-black rounded-xl flex items-center justify-center mx-auto shadow-[4px_4px_0px_black]">
       <Loader2 size={28} className="text-[var(--primary)] animate-spin" />
     </div>
     <div>
       <h2 className="text-xl font-bold text-[var(--text-primary)]">You&apos;re in!</h2>
       <p className="text-[14px] text-[var(--text-secondary)] mt-2">Waiting for host to start...</p>
     </div>
-    <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-full">
+    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-black rounded-full shadow-[3px_3px_0px_black]">
       <span className="text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Players</span>
       <span className="text-[14px] font-mono font-black text-[var(--primary)]">{players.length}</span>
     </div>
@@ -51,13 +51,13 @@ const QuestionDisplay = ({ question, onAnswer, disabled }: {
             {timeLeft}s
            </span>
         </div>
-        <div className="h-1.5 bg-[var(--bg-elevated)] rounded-full overflow-hidden border border-[var(--border)] shadow-inner">
+        <div className="h-1.5 bg-white border-2 border-black rounded-full overflow-hidden shadow-[2px_2px_0px_black]">
           <motion.div
             className={`h-full ${isLow ? 'bg-[#ef4444]' : 'bg-[var(--primary)]'}`}
             initial={{ width: '100%' }}
             animate={{ width: `${pct}%` }}
             transition={{ duration: 1, ease: 'linear' }}
-            style={{ boxShadow: isLow ? '0 0 10px rgba(239, 68, 68, 0.4)' : '0 0 10px var(--primary-glow)' }}
+            style={{ boxShadow: undefined }}
           />
         </div>
       </div>
@@ -75,7 +75,7 @@ const QuestionDisplay = ({ question, onAnswer, disabled }: {
             transition={{ delay: i * 0.1 }}
             onClick={() => onAnswer(opt.id)}
             disabled={disabled || timeLeft === 0}
-            className="group flex items-center gap-4 w-full p-5 bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl hover:border-[var(--primary)]/40 hover:bg-[var(--bg-elevated)] hover:shadow-xl transition-all text-left disabled:opacity-50 active:scale-[0.98] outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
+            className="group flex items-center gap-4 w-full p-5 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all text-left disabled:opacity-50 outline-none"
           >
             <div
               className="w-8 h-8 rounded-xl text-[13px] font-black text-white flex items-center justify-center shrink-0 shadow-lg"
@@ -97,8 +97,8 @@ const AnswerResult = ({ result }: { result: { correct: boolean; scoreGained: num
     <motion.div 
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto ${
-        result.correct ? 'bg-[#22c55e]/10 border border-[#22c55e]/20' : 'bg-[#ef4444]/10 border border-[#ef4444]/20'
+    className={`w-20 h-20 rounded-2xl flex items-center justify-center mx-auto border-2 ${
+        result.correct ? 'bg-[#A8E6CF] border-black shadow-[4px_4px_0px_black]' : 'bg-[#EF4444]/10 border-[#EF4444] shadow-[4px_4px_0px_#EF4444]'
       }`}
     >
       {result.correct 
@@ -116,7 +116,7 @@ const AnswerResult = ({ result }: { result: { correct: boolean; scoreGained: num
       </p>
     </div>
 
-    <div className="pt-6 border-t border-[var(--border)]">
+    <div className="pt-6 border-t-2 border-black">
       <p className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-[0.2em] mb-2">Score</p>
       <p className="text-4xl font-mono font-black text-[var(--primary)]">{result.totalScore}</p>
     </div>
@@ -132,7 +132,7 @@ const PlayerLeaderboard = ({ leaderboard }: { leaderboard: any[] }) => (
     </div>
     <div className="space-y-2">
       {leaderboard.slice(0, 5).map((p, i) => (
-        <div key={i} className="flex justify-between items-center p-3 bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl">
+        <div key={i} className="flex justify-between items-center p-3 bg-white border-2 border-black rounded-xl shadow-[3px_3px_0px_black]">
           <div className="flex items-center gap-3">
             <span className="text-[12px] font-mono font-bold text-[var(--text-muted)] w-5">#{i + 1}</span>
             <span className="text-[14px] font-bold text-[var(--text-primary)]">{p.name}</span>
@@ -238,7 +238,7 @@ export default function PlayPage() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
             >
-              <Card className="p-7 border-[var(--border)] shadow-2xl bg-[var(--bg-surface)]">
+              <Card className="p-7">
                 {renderView()}
               </Card>
             </motion.div>

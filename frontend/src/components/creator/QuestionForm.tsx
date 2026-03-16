@@ -105,8 +105,8 @@ export const QuestionForm = ({ quizId, questionToEdit, onQuestionSaved, onCancel
         required
       />
       <div>
-        <h3 className="text-[14px] font-black text-[#3B142A] mb-2 uppercase tracking-wider">Options</h3>
-        <p className="text-[12px] text-[#8A846B] font-bold mb-5">Select the correct answer by clicking the indicator on the left.</p>
+        <h3 className="text-[14px] font-black text-[#1E1E1E] mb-2 uppercase tracking-wider">Options</h3>
+        <p className="text-[12px] text-[#6B6B6B] font-bold mb-5">Select the correct answer by clicking the indicator on the left.</p>
         <div className="space-y-4">
           {options.map((option, index) => (
             <div key={index} className="flex items-center gap-3">
@@ -115,7 +115,7 @@ export const QuestionForm = ({ quizId, questionToEdit, onQuestionSaved, onCancel
                 name="correct-option"
                 checked={option.isCorrect}
                 onChange={() => handleOptionChange(index, 'isCorrect', true)}
-                className="h-5 w-5 accent-[#FF319F] border-gray-100"
+                className="h-5 w-5 accent-[var(--primary)] border-2 border-black rounded"
               />
               <Input
                 type="text"
@@ -147,7 +147,7 @@ export const QuestionForm = ({ quizId, questionToEdit, onQuestionSaved, onCancel
           <Plus size={14} /> Add Option
         </Button>
       </div>
-      <div className="flex justify-end gap-3 pt-6 border-t border-[#E5E0C9]">
+      <div className="flex justify-end gap-3 pt-6 border-t-2 border-black">
         {questionToEdit && (
           <Button type="button" variant="ghost" onClick={onCancelEdit}>
             Cancel Edit
