@@ -34,17 +34,17 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-base)] flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4">
       <Link href="/">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-3 mb-10 hover:opacity-80 transition-opacity"
         >
-          <div className="w-8 h-8 bg-[var(--primary)] rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-[#F55CA7] rounded-lg flex items-center justify-center border-2 border-black shadow-[2px_2px_0px_black]">
             <Zap size={18} className="text-white fill-current" />
           </div>
-          <span className="text-[18px] font-bold text-white">Quizzingly</span>
+          <span className="text-[18px] font-black text-[#1E1E1E]">Quizzingly</span>
         </motion.div>
       </Link>
 
@@ -54,10 +54,10 @@ export default function RegisterPage() {
         transition={{ delay: 0.05 }}
         className="w-full max-w-[380px]"
       >
-        <Card className="rounded-[40px] border-[#E5E0C9] shadow-2xl overflow-hidden bg-[#F3EFDA]">
-          <div className="px-8 py-8 border-b border-[#E5E0C9]/50 bg-[#F3EFDA]">
-            <h1 className="text-[22px] font-black text-[#3B142A] tracking-tight">Create account</h1>
-            <p className="text-[14px] font-bold text-[#6B6651] mt-2">Start hosting amazing quizzes</p>
+        <Card>
+          <div className="px-8 py-6 border-b-2 border-black bg-[#FFD166]">
+            <h1 className="text-[22px] font-black text-[#1E1E1E] tracking-tight">Create account</h1>
+            <p className="text-[14px] font-bold text-[#1E1E1E]/70 mt-1">Start hosting amazing quizzes</p>
           </div>
 
           <form onSubmit={handleSubmit} className="p-8 space-y-5">
@@ -99,7 +99,7 @@ export default function RegisterPage() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-[12px] text-[#EF4444] font-medium bg-[#EF4444]/5 border border-[#EF4444]/20 rounded-lg px-4 py-2.5"
+                className="text-[12px] text-[#EF4444] font-bold bg-white border-2 border-[#EF4444] shadow-[2px_2px_0px_#EF4444] rounded-xl px-4 py-2.5"
               >
                 {error}
               </motion.div>
@@ -111,9 +111,9 @@ export default function RegisterPage() {
           </form>
         </Card>
 
-        <p className="text-center text-[13px] text-[#F3EFDA]/60 mt-6 font-bold">
+        <p className="text-center text-[13px] text-[#6B6B6B] mt-6 font-bold">
           Already have an account?{' '}
-          <Link href="/login" className="text-[#FF319F] hover:underline font-black">
+          <Link href="/login" className="text-[#F55CA7] hover:underline font-black">
             Sign in
           </Link>
         </p>

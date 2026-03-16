@@ -12,16 +12,16 @@ import { CheckCircle2, XCircle, Trophy, Timer, Loader2, Lock } from 'lucide-reac
 /* ── Lobby ─────────────────────────────────────────── */
 const Lobby = ({ players }: { players: string[] }) => (
   <div className="text-center py-4 space-y-6">
-    <div className="w-16 h-16 bg-[var(--primary)]/10 border border-[var(--primary)]/20 rounded-2xl flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)]">
-      <Loader2 size={28} className="text-[var(--primary)] animate-spin" />
+    <div className="w-16 h-16 bg-[#FFD166] border-2 border-black rounded-xl flex items-center justify-center mx-auto shadow-[4px_4px_0px_black]">
+      <Loader2 size={28} className="text-[#1E1E1E] animate-spin" />
     </div>
     <div>
-      <h2 className="text-xl font-bold text-[var(--text-primary)]">You&apos;re in!</h2>
-      <p className="text-[14px] text-[var(--text-secondary)] mt-2">Waiting for host to start...</p>
+      <h2 className="text-xl font-black text-[#1E1E1E]">You&apos;re in!</h2>
+      <p className="text-[14px] text-[#6B6B6B] mt-2 font-medium">Waiting for host to start...</p>
     </div>
-    <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-full">
-      <span className="text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Players</span>
-      <span className="text-[14px] font-mono font-black text-[var(--primary)]">{players.length}</span>
+    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-black rounded-xl shadow-[2px_2px_0px_black]">
+      <span className="text-[12px] font-black text-[#6B6B6B] uppercase tracking-wider">Players</span>
+      <span className="text-[14px] font-mono font-black text-[#F55CA7]">{players.length}</span>
     </div>
   </div>
 );
@@ -44,27 +44,25 @@ const QuestionDisplay = ({ question, onAnswer, disabled }: {
 
   return (
     <div className="space-y-6">
+      {/* Timer */}
       <div className="space-y-3">
         <div className="flex justify-between items-center px-1">
-           <Timer size={14} className={isLow ? 'text-[#ef4444]' : 'text-[var(--text-secondary)]'} />
-           <span className={`text-[13px] font-mono font-bold ${isLow ? 'text-[#ef4444]' : 'text-[var(--text-secondary)]'}`}>
+          <Timer size={14} className={isLow ? 'text-[#ef4444]' : 'text-[#6B6B6B]'} />
+          <span className={`text-[13px] font-mono font-black ${isLow ? 'text-[#ef4444]' : 'text-[#6B6B6B]'}`}>
             {timeLeft}s
-           </span>
+          </span>
         </div>
-        <div className="h-1.5 bg-[var(--bg-elevated)] rounded-full overflow-hidden border border-[var(--border)] shadow-inner">
+        <div className="h-2 bg-white border-2 border-black rounded-full overflow-hidden shadow-[2px_2px_0px_black]">
           <motion.div
-            className={`h-full ${isLow ? 'bg-[#ef4444]' : 'bg-[var(--primary)]'}`}
+            className={`h-full rounded-full ${isLow ? 'bg-[#ef4444]' : 'bg-[#F55CA7]'}`}
             initial={{ width: '100%' }}
             animate={{ width: `${pct}%` }}
             transition={{ duration: 1, ease: 'linear' }}
-            style={{ boxShadow: isLow ? '0 0 10px rgba(239, 68, 68, 0.4)' : '0 0 10px var(--primary-glow)' }}
           />
         </div>
       </div>
 
-      <h3 className="text-xl font-bold text-[var(--text-primary)] text-center leading-tight">
-        {question.text}
-      </h3>
+      <h3 className="text-xl font-black text-[#1E1E1E] text-center leading-tight">{question.text}</h3>
 
       <div className="grid grid-cols-1 gap-3">
         {question.options.map((opt: any, i: number) => (
@@ -75,15 +73,15 @@ const QuestionDisplay = ({ question, onAnswer, disabled }: {
             transition={{ delay: i * 0.1 }}
             onClick={() => onAnswer(opt.id)}
             disabled={disabled || timeLeft === 0}
-            className="group flex items-center gap-4 w-full p-5 bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl hover:border-[var(--primary)]/40 hover:bg-[var(--bg-elevated)] hover:shadow-xl transition-all text-left disabled:opacity-50 active:scale-[0.98] outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
+            className="group flex items-center gap-4 w-full p-5 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] text-left disabled:opacity-50 transition-all outline-none"
           >
             <div
-              className="w-8 h-8 rounded-xl text-[13px] font-black text-white flex items-center justify-center shrink-0 shadow-lg"
+              className="w-8 h-8 rounded-lg text-[13px] font-black text-white flex items-center justify-center shrink-0 border-2 border-black"
               style={{ background: colors[i % 4] }}
             >
               {String.fromCharCode(65 + i)}
             </div>
-            <span className="text-[15px] font-bold text-[var(--text-primary)] tracking-tight">{opt.text}</span>
+            <span className="text-[15px] font-black text-[#1E1E1E] tracking-tight">{opt.text}</span>
           </motion.button>
         ))}
       </div>
@@ -94,16 +92,16 @@ const QuestionDisplay = ({ question, onAnswer, disabled }: {
 /* ── Answer result ─────────────────────────────────── */
 const AnswerResult = ({ result }: { result: { correct: boolean; scoreGained: number; totalScore: number } }) => (
   <div className="text-center py-4 space-y-6">
-    <motion.div 
+    <motion.div
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto ${
-        result.correct ? 'bg-[#22c55e]/10 border border-[#22c55e]/20' : 'bg-[#ef4444]/10 border border-[#ef4444]/20'
+      className={`w-20 h-20 rounded-xl flex items-center justify-center mx-auto border-2 border-black shadow-[4px_4px_0px_black] ${
+        result.correct ? 'bg-[#22c55e]' : 'bg-[#ef4444]'
       }`}
     >
-      {result.correct 
-        ? <CheckCircle2 size={40} className="text-[#22c55e]" /> 
-        : <XCircle size={40} className="text-[#ef4444]" />
+      {result.correct
+        ? <CheckCircle2 size={40} className="text-white" />
+        : <XCircle size={40} className="text-white" />
       }
     </motion.div>
 
@@ -111,33 +109,33 @@ const AnswerResult = ({ result }: { result: { correct: boolean; scoreGained: num
       <h2 className={`text-2xl font-black uppercase tracking-tight ${result.correct ? 'text-[#22c55e]' : 'text-[#ef4444]'}`}>
         {result.correct ? 'Correct!' : 'Incorrect'}
       </h2>
-      <p className="text-[16px] font-bold text-[var(--text-primary)] mt-1">
+      <p className="text-[16px] font-black text-[#1E1E1E] mt-1">
         {result.correct ? `+${result.scoreGained} Pts` : 'No points'}
       </p>
     </div>
 
-    <div className="pt-6 border-t border-[var(--border)]">
-      <p className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-[0.2em] mb-2">Score</p>
-      <p className="text-4xl font-mono font-black text-[var(--primary)]">{result.totalScore}</p>
+    <div className="pt-6 border-t-2 border-black">
+      <p className="text-[11px] font-black text-[#A0A0A0] uppercase tracking-[0.2em] mb-2">Score</p>
+      <p className="text-4xl font-mono font-black text-[#F55CA7]">{result.totalScore}</p>
     </div>
   </div>
 );
 
 /* ── Leaderboard ───────────────────────────────────── */
 const PlayerLeaderboard = ({ leaderboard }: { leaderboard: any[] }) => (
-  <div className="space-y-5">
+  <div className="space-y-4">
     <div className="flex items-center gap-2 px-1">
-      <Trophy size={16} className="text-[var(--primary)]" />
-      <h3 className="text-[14px] font-bold text-[var(--text-primary)] uppercase tracking-wider">Standings</h3>
+      <Trophy size={16} className="text-[#F55CA7]" />
+      <h3 className="text-[14px] font-black text-[#1E1E1E] uppercase tracking-wider">Standings</h3>
     </div>
     <div className="space-y-2">
       {leaderboard.slice(0, 5).map((p, i) => (
-        <div key={i} className="flex justify-between items-center p-3 bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl">
+        <div key={i} className={`flex justify-between items-center p-3 border-2 border-black rounded-xl shadow-[2px_2px_0px_black] ${i === 0 ? 'bg-[#FFD166]' : 'bg-white'}`}>
           <div className="flex items-center gap-3">
-            <span className="text-[12px] font-mono font-bold text-[var(--text-muted)] w-5">#{i + 1}</span>
-            <span className="text-[14px] font-bold text-[var(--text-primary)]">{p.name}</span>
+            <span className="text-[12px] font-mono font-black text-[#A0A0A0] w-5">#{i + 1}</span>
+            <span className="text-[14px] font-black text-[#1E1E1E]">{p.name}</span>
           </div>
-          <span className="text-[14px] font-mono font-black text-[var(--primary)]">{p.score}</span>
+          <span className="text-[14px] font-mono font-black text-[#F55CA7]">{p.score}</span>
         </div>
       ))}
     </div>
@@ -186,16 +184,16 @@ export default function PlayPage() {
       case 'waiting_for_result':
         return (
           <div className="text-center py-10 space-y-6">
-            <motion.div 
+            <motion.div
               animate={{ scale: [1, 1.1, 1], opacity: [0.5, 1, 0.5] }}
               transition={{ repeat: Infinity, duration: 2 }}
-              className="w-16 h-16 bg-[var(--primary)]/10 border border-[var(--primary)]/20 rounded-full flex items-center justify-center mx-auto"
+              className="w-16 h-16 bg-[#FFD166] border-2 border-black rounded-xl flex items-center justify-center mx-auto shadow-[4px_4px_0px_black]"
             >
-              <Lock size={28} className="text-[var(--primary)]" />
+              <Lock size={28} className="text-[#1E1E1E]" />
             </motion.div>
             <div>
-              <h3 className="text-lg font-bold text-[var(--text-primary)]">Locked In</h3>
-              <p className="text-[13px] text-[var(--text-secondary)] mt-2">Waiting for results...</p>
+              <h3 className="text-lg font-black text-[#1E1E1E]">Locked In</h3>
+              <p className="text-[13px] text-[#6B6B6B] mt-2 font-medium">Waiting for results...</p>
             </div>
           </div>
         );
@@ -207,18 +205,20 @@ export default function PlayPage() {
         return (
           <div className="space-y-8">
             <div className="text-center">
-               <Trophy size={48} className={`text-[var(--primary)] mx-auto mb-4`} />
-               <h2 className="text-2xl font-black uppercase tracking-tight text-[var(--text-primary)]">Game Over</h2>
+              <div className="w-16 h-16 bg-[#FFD166] border-2 border-black rounded-xl flex items-center justify-center mx-auto mb-4 shadow-[4px_4px_0px_black]">
+                <Trophy size={32} className="text-[#1E1E1E]" />
+              </div>
+              <h2 className="text-2xl font-black uppercase tracking-tight text-[#1E1E1E]">Game Over</h2>
             </div>
             <PlayerLeaderboard leaderboard={store.gameResult || store.leaderboard} />
-            <Button onClick={() => router.push('/')} fullWidth size="lg" className="h-14 shadow-xl">Replay</Button>
+            <Button onClick={() => router.push('/')} fullWidth size="lg" className="h-14">Back to Home</Button>
           </div>
         );
       case 'waiting':
         return (
           <div className="text-center py-10 space-y-4">
-            <p className="text-xl font-black text-[var(--primary)] animate-pulse uppercase tracking-[0.2em]">Ready?</p>
-            <p className="text-[14px] text-[var(--text-secondary)]">Next question starting soon</p>
+            <p className="text-xl font-black text-[#F55CA7] animate-pulse uppercase tracking-[0.2em]">Ready?</p>
+            <p className="text-[14px] text-[#6B6B6B] font-medium">Next question starting soon</p>
           </div>
         );
       default:
@@ -227,7 +227,7 @@ export default function PlayPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-base)] pt-20 pb-16">
+    <div className="min-h-screen pt-20 pb-16">
       <div className="w-full max-w-3xl mx-auto px-4 sm:px-6">
         <div className="w-full max-w-sm mx-auto">
           <AnimatePresence mode="wait">
@@ -238,7 +238,7 @@ export default function PlayPage() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
             >
-              <Card className="p-7 border-[var(--border)] shadow-2xl bg-[var(--bg-surface)]">
+              <Card className="p-7">
                 {renderView()}
               </Card>
             </motion.div>

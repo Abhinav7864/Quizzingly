@@ -24,7 +24,6 @@ export const QuestionForm = ({ quizId, questionToEdit, onQuestionSaved, onCancel
   const [text, setText] = useState('');
   const [timeLimit, setTimeLimit] = useState<number | string>(20);
   const [options, setOptions] = useState<Partial<Option>[]>(initialOptions);
-  
   const { isLoading, exec: saveQuestion } = useApi<Question>();
 
   useEffect(() => {
@@ -54,48 +53,27 @@ export const QuestionForm = ({ quizId, questionToEdit, onQuestionSaved, onCancel
   };
 
   const addOption = () => {
-    if (options.length < 6) {
-      setOptions([...options, { text: '', isCorrect: false }]);
-    }
+    if (options.length < 6) setOptions([...options, { text: '', isCorrect: false }]);
   };
-  
+
   const removeOption = (index: number) => {
-    if (options.length > 2) {
-      setOptions(options.filter((_, i) => i !== index));
-    }
+    if (options.length > 2) setOptions(options.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const endpoint = questionToEdit 
-      ? `/questions/${questionToEdit.id}` 
-      : `/${quizId}/questions`;
-      
+    const endpoint = questionToEdit ? `/questions/${questionToEdit.id}` : `/${quizId}/questions`;
     const method = questionToEdit ? 'PUT' : 'POST';
-
-    const saved = await saveQuestion(endpoint, {
-      method,
-      body: { text, timeLimit, options },
-    });
-    
+    const saved = await saveQuestion(endpoint, { method, body: { text, timeLimit, options } });
     if (saved) {
       onQuestionSaved(saved);
-      if (!questionToEdit) {
-        resetForm();
-      }
+      if (!questionToEdit) resetForm();
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <Input
-        id="question-text"
-        label="Question Text"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        required
-      />
+      <Input id="question-text" label="Question Text" value={text} onChange={(e) => setText(e.target.value)} required />
       <Input
         id="time-limit"
         label="Time Limit (seconds)"
@@ -104,9 +82,10 @@ export const QuestionForm = ({ quizId, questionToEdit, onQuestionSaved, onCancel
         onChange={(e) => setTimeLimit(e.target.value === '' ? '' : parseInt(e.target.value))}
         required
       />
+
       <div>
-        <h3 className="text-[14px] font-black text-[#3B142A] mb-2 uppercase tracking-wider">Options</h3>
-        <p className="text-[12px] text-[#8A846B] font-bold mb-5">Select the correct answer by clicking the indicator on the left.</p>
+        <h3 className="text-[14px] font-black text-[#1E1E1E] mb-1 uppercase tracking-wider">Options</h3>
+        <p className="text-[12px] text-[#6B6B6B] font-bold mb-5">Select the correct answer by clicking the indicator.</p>
         <div className="space-y-4">
           {options.map((option, index) => (
             <div key={index} className="flex items-center gap-3">
@@ -115,7 +94,7 @@ export const QuestionForm = ({ quizId, questionToEdit, onQuestionSaved, onCancel
                 name="correct-option"
                 checked={option.isCorrect}
                 onChange={() => handleOptionChange(index, 'isCorrect', true)}
-                className="h-5 w-5 accent-[#FF319F] border-gray-100"
+                className="h-5 w-5 accent-[#F55CA7]"
               />
               <Input
                 type="text"
@@ -124,11 +103,11 @@ export const QuestionForm = ({ quizId, questionToEdit, onQuestionSaved, onCancel
                 placeholder={`Option ${index + 1}`}
                 required
               />
-              <Button 
-                type="button" 
-                variant="danger" 
+              <Button
+                type="button"
+                variant="danger"
                 size="sm"
-                onClick={() => removeOption(index)} 
+                onClick={() => removeOption(index)}
                 disabled={options.length <= 2}
                 className="w-10 h-10 p-0 rounded-xl"
               >
@@ -137,21 +116,14 @@ export const QuestionForm = ({ quizId, questionToEdit, onQuestionSaved, onCancel
             </div>
           ))}
         </div>
-        <Button 
-          type="button" 
-          variant="outline" 
-          onClick={addOption} 
-          disabled={options.length >= 6} 
-          className="mt-4 gap-2"
-        >
+        <Button type="button" variant="outline" onClick={addOption} disabled={options.length >= 6} className="mt-4 gap-2">
           <Plus size={14} /> Add Option
         </Button>
       </div>
-      <div className="flex justify-end gap-3 pt-6 border-t border-[#E5E0C9]">
+
+      <div className="flex justify-end gap-3 pt-6 border-t-2 border-black">
         {questionToEdit && (
-          <Button type="button" variant="ghost" onClick={onCancelEdit}>
-            Cancel Edit
-          </Button>
+          <Button type="button" variant="ghost" onClick={onCancelEdit}>Cancel Edit</Button>
         )}
         <Button type="submit" variant="primary" isLoading={isLoading} disabled={isLoading}>
           {questionToEdit ? 'Update Question' : 'Save Question'}
