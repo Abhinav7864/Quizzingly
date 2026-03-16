@@ -8,12 +8,24 @@ import { requireAuth } from "./middleware/auth.middleware.js";
 
 const app = express();
 
+const corsOrigins = process.env.CORS_ORIGINS 
+  ? process.env.CORS_ORIGINS.split(",") 
+  : ["https://quizzingly-frontend.onrender.com", "http://localhost:3000"];
+
 app.use(cors({
-  origin: "https://quizzingly-frontend.onrender.com",
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (corsOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === "development") {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true
 }));
-console.log("[Setup] Modern CORS middleware initialized with Render origin");
+console.log("[Setup] CORS middleware initialized with origins:", corsOrigins);
 
 app.use(express.json());
 console.log("[Setup] JSON parsing middleware initialized");
@@ -36,6 +48,14 @@ app.get("/protected", requireAuth, (req, res) => {
     message: "Access granted",
     user: req.user,
   });
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error("[Global Error]", err);
+  const status = err.status || 500;
+  const message = err.message || "An internal server error occurred";
+  res.status(status).json({ message });
 });
 
 export default app;

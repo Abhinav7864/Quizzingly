@@ -2,48 +2,73 @@ import React from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'destructive' | 'ghost' | 'outline';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   fullWidth?: boolean;
 }
 
-export const Button = ({ 
-  children, 
-  className = '', 
-  variant = 'primary', 
+export const Button = ({
+  children,
+  className = '',
+  variant = 'primary',
   size = 'md',
   isLoading = false,
   fullWidth = false,
   disabled,
-  ...props 
+  ...props
 }: ButtonProps) => {
-  const baseStyles = "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-950 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]";
-  
+  const base = [
+    'inline-flex items-center justify-center font-semibold transition-all duration-150',
+    'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b5179e]/50',
+    'disabled:opacity-40 disabled:cursor-not-allowed',
+    'select-none active:scale-[0.98]',
+  ].join(' ');
+
   const variants = {
-    primary: "bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-indigo-500 shadow-sm",
-    secondary: "bg-gray-800 text-gray-200 hover:bg-gray-700 focus:ring-gray-500 border border-gray-700",
-    destructive: "bg-red-500 text-white hover:bg-red-600 focus:ring-red-500",
-    ghost: "bg-transparent text-gray-300 hover:bg-gray-800/50 focus:ring-gray-500",
-    outline: "bg-transparent border-2 border-gray-600 text-gray-300 hover:border-indigo-500 hover:text-indigo-400 focus:ring-indigo-500"
+    primary: [
+      'bg-[#b5179e] text-white',
+      'hover:bg-[#cc2baf] hover:shadow-[0_0_20px_rgba(181,23,158,0.4)]',
+    ].join(' '),
+    secondary: [
+      'bg-[#1a1a1a] border border-white/8 text-[#f5f3ef]',
+      'hover:bg-[#222] hover:border-[#4361ee]/30',
+    ].join(' '),
+    ghost: [
+      'bg-transparent text-[#8a8780]',
+      'hover:bg-[#1a1a1a] hover:text-[#f5f3ef]',
+    ].join(' '),
+    outline: [
+      'bg-transparent border border-white/10 text-[#f5f3ef]',
+      'hover:border-[#b5179e] hover:text-[#b5179e]',
+    ].join(' '),
+    danger: [
+      'bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/20',
+      'hover:bg-[#ef4444]/20',
+    ].join(' '),
   };
 
   const sizes = {
-    sm: "py-2 px-4 text-sm",
-    md: "py-2.5 px-5 text-base",
-    lg: "py-3 px-6 text-lg"
+    sm: 'h-8 px-3 text-[13px] rounded-lg gap-2',
+    md: 'h-9 px-4 text-[14px] rounded-lg gap-2',
+    lg: 'h-11 px-6 text-[15px] rounded-xl gap-2.5',
   };
 
   return (
     <button
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${fullWidth ? 'w-full' : ''} ${className}`}
+      className={`${base} ${variants[variant]} ${sizes[size]} ${fullWidth ? 'w-full' : ''} ${className}`}
       disabled={disabled || isLoading}
       {...props}
     >
       {isLoading && (
-        <svg className="animate-spin -ml-1 mr-2.5 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <svg
+          className="animate-spin shrink-0 h-[1.1em] w-[1.1em]"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
         </svg>
       )}
       {children}

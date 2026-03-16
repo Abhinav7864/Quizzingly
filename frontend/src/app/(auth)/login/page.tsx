@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Card } from '@/components/ui/Card';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { Zap } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -24,92 +26,84 @@ export default function LoginPage() {
       await login(email, password);
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Failed to log in');
+      setError(err.message || 'Failed to sign in');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-5 bg-gray-950">
-      <Link href="/" className="mb-10">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center">
-            <span className="text-white font-bold text-xl">Q</span>
-          </div>
-          <span className="text-2xl font-bold text-gray-100">
-            Quizzingly
-          </span>
-        </div>
-      </Link>
-      
-      <motion.div 
-        initial={{ opacity: 0, y: 10 }}
+    <div className="min-h-screen bg-[#0d0d0d] flex flex-col items-center justify-center px-4">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md p-8 bg-gray-900 border border-gray-800 rounded-2xl"
+        className="flex items-center gap-3 mb-10"
       >
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-100">Welcome back</h1>
-          <p className="text-gray-500 mt-2">Sign in to your creator account</p>
+        <div className="w-8 h-8 bg-[#b5179e] rounded-lg flex items-center justify-center">
+          <Zap size={18} className="text-white fill-current" />
         </div>
+        <span className="text-[18px] font-bold text-[#f5f3ef]">Quizzingly</span>
+      </motion.div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <Input
-            id="email"
-            label="Email"
-            type="email"
-            placeholder="name@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="email"
-          />
-          <Input
-            id="password"
-            label="Password"
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            autoComplete="current-password"
-          />
-          
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl p-3"
-            >
-              {error}
-            </motion.div>
-          )}
-
-          <Button type="submit" fullWidth size="lg" isLoading={loading}>
-            Sign In
-          </Button>
-        </form>
-
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-800"></div>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.05 }}
+        className="w-full max-w-[380px]"
+      >
+        <Card className="rounded-[32px] border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden">
+          <div className="px-8 py-6 border-b border-white/6 bg-white/[0.02]">
+            <h1 className="text-[18px] font-black text-[#f5f3ef] tracking-tight">Sign in</h1>
+            <p className="text-[14px] font-medium text-[#8a8780] mt-1">Welcome back, explorer</p>
           </div>
-          <div className="relative flex justify-center text-xs">
-            <span className="bg-gray-900 px-3 text-gray-500">New to Quizzingly?</span>
-          </div>
-        </div>
 
-        <p className="text-center text-sm text-gray-400">
-          Don't have an account?{' '}
-          <Link href="/register" className="font-medium text-indigo-400 hover:text-indigo-300">
+          <form onSubmit={handleSubmit} className="p-8 space-y-5">
+            <Input
+              id="email"
+              label="Email"
+              type="email"
+              placeholder="name@quizzingly.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              className="h-12 bg-[#0d0d0d]"
+            />
+            <Input
+              id="password"
+              label="Password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+              className="h-12 bg-[#0d0d0d]"
+            />
+
+            {error && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-[12px] text-[#ef4444] font-medium bg-[#ef4444]/5 border border-[#ef4444]/20 rounded-lg px-4 py-2.5"
+              >
+                {error}
+              </motion.div>
+            )}
+
+            <Button type="submit" fullWidth size="lg" className="h-10 mt-2" isLoading={loading}>
+              Sign in
+            </Button>
+          </form>
+        </Card>
+
+        <p className="text-center text-[13px] text-[#8a8780] mt-6">
+          Don&apos;t have an account?{' '}
+          <Link href="/register" className="text-[#b5179e] hover:underline font-medium">
             Sign up
           </Link>
         </p>
       </motion.div>
-      
-      <Link href="/" className="mt-8 text-sm text-gray-500 hover:text-gray-400">
-        ← Back to home
-      </Link>
     </div>
   );
 }

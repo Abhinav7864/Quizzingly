@@ -21,7 +21,7 @@ const initialOptions = [
 
 export const QuestionForm = ({ quizId, questionToEdit, onQuestionSaved, onCancelEdit }: QuestionFormProps) => {
   const [text, setText] = useState('');
-  const [timeLimit, setTimeLimit] = useState(20);
+  const [timeLimit, setTimeLimit] = useState<number | string>(20);
   const [options, setOptions] = useState<Partial<Option>[]>(initialOptions);
   
   const { isLoading, exec: saveQuestion } = useApi<Question>();
@@ -100,7 +100,7 @@ export const QuestionForm = ({ quizId, questionToEdit, onQuestionSaved, onCancel
         label="Time Limit (seconds)"
         type="number"
         value={timeLimit}
-        onChange={(e) => setTimeLimit(parseInt(e.target.value))}
+        onChange={(e) => setTimeLimit(e.target.value === '' ? '' : parseInt(e.target.value))}
         required
       />
       <div>

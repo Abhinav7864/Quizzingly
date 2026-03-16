@@ -1,27 +1,32 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { Header } from "@/components/Header";
 
-const inter = Inter({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
-  title: "AI Quiz Platform",
-  description: "A real-time AI-powered quiz platform",
+  title: "Quizzingly",
+  description: "Live AI-powered multiplayer quizzes",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-gray-900 text-white`}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Geist:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body style={{fontFamily: "Geist, sans-serif"}}>
         <AuthProvider>
           <Header />
-          <main className="container mx-auto p-4 pt-24 min-h-screen">
+          <main className="min-h-screen bg-[#0d0d0d]">
             {children}
           </main>
         </AuthProvider>
