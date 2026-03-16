@@ -26,7 +26,7 @@ export default function RootLayout({
       <body style={{fontFamily: "Geist, sans-serif"}}>
         <AuthProvider>
           <Header />
-          <main className="min-h-screen bg-[#0d0d0d]">
+          <main className="min-h-screen bg-[var(--bg-base)]">
             {children}
           </main>
         </AuthProvider>

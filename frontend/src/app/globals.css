@@ -1,18 +1,42 @@
 @import "tailwindcss";
 
 :root {
-  --bg-base: #0a0a0a;
-  --bg-surface: #121212;
-  --bg-elevated: #1a1a1a;
-  --primary: #f72585;
-  --secondary: #7209b7;
-  --accent: #4cc9f0;
-  --primary-dim: rgba(247, 37, 133, 0.12);
-  --text-primary: #f5f3ef;
-  --text-secondary: #8a8780;
-  --text-muted: #4a4845;
-  --border: rgba(255, 255, 255, 0.07);
-  --border-active: rgba(247, 37, 133, 0.45);
+  /* Brand Palette */
+  --brand-dark: #3B142A;
+  --brand-dark-2: #4B1632;
+  --brand-dark-3: #5C183C;
+  --brand-accent: #FF319F;
+  --brand-accent-hover: #E72B8F;
+  --brand-light: #F3EFDA;
+  --brand-soft: #FFC48A;
+
+  /* Functional Mapping */
+  --bg-base: #3B142A;
+  --bg-surface: #F3EFDA;
+  --bg-elevated: #4B1632;
+  --primary: var(--brand-accent);
+  --primary-hover: var(--brand-accent-hover);
+  --secondary: var(--brand-dark);
+  --accent: var(--brand-soft);
+  
+  --text-primary: #F3EFDA;
+  --text-secondary: rgba(243, 239, 218, 0.7);
+  --text-muted: rgba(243, 239, 218, 0.4);
+  --text-on-dark: #FFFFFF;
+
+  --border: rgba(255, 255, 255, 0.1);
+  --border-active: var(--brand-accent);
+
+  --hero-gradient: linear-gradient(135deg, #3B142A 0%, #4B1632 40%, #5C183C 100%);
+  --card-shadow: 0 40px 80px rgba(0, 0, 0, 0.4);
+  --color-beige: #F3EFDA;
+
+  /* Pastels */
+  --pastel-lavender: #C9B6E4;
+  --pastel-peach: #FFC48A;
+  --pastel-lime: #D7E26D;
+  --pastel-sand: #E9C39B;
+  --pastel-sky: #B8D5F3;
 
   --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Geist Mono', ui-monospace, monospace;
@@ -21,19 +45,52 @@
 @theme inline {
   --color-background: var(--bg-base);
   --color-foreground: var(--text-primary);
+  --color-white: #FFFFFF;
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
 }
 
+.hero-gradient {
+  background: var(--hero-gradient);
+}
+
 
 body {
-  background: var(--bg-base);
+  background: var(--hero-gradient);
   color: var(--text-primary);
   font-family: var(--font-sans);
   font-size: 15px;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  width: 50vw;
+  height: 50vw;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body::before {
+  top: -10%;
+  left: -10%;
+  background: #FF319F;
+}
+
+body::after {
+  bottom: -10%;
+  right: -10%;
+  background: #FFC48A;
 }
 
 ::selection {

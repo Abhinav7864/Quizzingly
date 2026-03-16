@@ -20,38 +20,38 @@ export const Button = ({
 }: ButtonProps) => {
   const base = [
     'inline-flex items-center justify-center font-semibold transition-all duration-150',
-    'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b5179e]/50',
+    'focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(255,49,159,0.4)]',
     'disabled:opacity-40 disabled:cursor-not-allowed',
     'select-none active:scale-[0.98]',
   ].join(' ');
 
   const variants = {
     primary: [
-      'bg-[#b5179e] text-white',
-      'hover:bg-[#cc2baf] hover:shadow-[0_0_20px_rgba(181,23,158,0.4)]',
+      'bg-[var(--primary)] text-white shadow-sm',
+      'hover:bg-[var(--primary-hover)] hover:shadow-md hover:shadow-[rgba(255,49,159,0.2)]',
     ].join(' '),
     secondary: [
-      'bg-[#1a1a1a] border border-white/8 text-[#f5f3ef]',
-      'hover:bg-[#222] hover:border-[#4361ee]/30',
+      'bg-[#EDE9D5] text-[#3B142A] border border-[#E5E0C9] shadow-sm',
+      'hover:bg-[#E5E0C9] hover:shadow-md transition-all',
     ].join(' '),
     ghost: [
-      'bg-transparent text-[#8a8780]',
-      'hover:bg-[#1a1a1a] hover:text-[#f5f3ef]',
+      'bg-transparent text-[#8A846B] font-bold',
+      'hover:bg-[#EDE9D5] hover:text-[#3B142A]',
     ].join(' '),
     outline: [
-      'bg-transparent border border-white/10 text-[#f5f3ef]',
-      'hover:border-[#b5179e] hover:text-[#b5179e]',
+      'bg-transparent border-2 border-[#E5E0C9] text-[#3B142A] font-bold',
+      'hover:border-[#FF319F] hover:text-[#FF319F] hover:bg-[#FF319F]/5',
     ].join(' '),
     danger: [
-      'bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/20',
-      'hover:bg-[#ef4444]/20',
+      'bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/20 font-bold',
+      'hover:bg-[#EF4444]/15',
     ].join(' '),
   };
 
   const sizes = {
-    sm: 'h-8 px-3 text-[13px] rounded-lg gap-2',
-    md: 'h-9 px-4 text-[14px] rounded-lg gap-2',
-    lg: 'h-11 px-6 text-[15px] rounded-xl gap-2.5',
+    sm: 'h-8 px-3 text-[13px] rounded-xl gap-2',
+    md: 'h-10 px-5 text-[14px] rounded-2xl gap-2',
+    lg: 'h-12 px-7 text-[15px] rounded-2xl gap-2.5',
   };
 
   return (

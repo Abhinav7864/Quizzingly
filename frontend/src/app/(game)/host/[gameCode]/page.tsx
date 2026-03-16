@@ -12,12 +12,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 /* ── Lobby ─────────────────────────────────────────── */
 const Lobby = ({ gameCode, players }: { gameCode: string; players: string[] }) => (
   <div className="space-y-10">
-    <Card className="p-16 text-center border-white/10 bg-[#161616] shadow-[0_30px_60px_rgba(0,0,0,0.6)] rounded-[40px] relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#b5179e] to-transparent opacity-50" />
-      <p className="text-[12px] font-black text-[#b5179e] uppercase tracking-[0.4em] mb-6 animate-pulse">
+    <Card className="p-16 text-center border-[var(--border)] bg-[var(--bg-surface)] shadow-2xl rounded-[40px] relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent opacity-20" />
+      <p className="text-[12px] font-black text-[var(--primary)] uppercase tracking-[0.4em] mb-6 animate-pulse">
         Waiting for players
       </p>
-      <h1 className="font-mono text-8xl md:text-9xl font-black tracking-[0.2em] text-[#f5f3ef] leading-none drop-shadow-[0_0_30px_rgba(181,23,158,0.2)]">
+      <h1 className="font-mono text-8xl md:text-9xl font-black tracking-[0.2em] text-[var(--text-primary)] leading-none drop-shadow-sm">
         {gameCode}
       </h1>
     </Card>
@@ -25,13 +25,13 @@ const Lobby = ({ gameCode, players }: { gameCode: string; players: string[] }) =
     <div>
       <div className="flex items-center justify-between mb-4 px-2">
         <div className="flex items-center gap-2">
-          <Users size={16} className="text-[#b5179e]" />
-          <span className="text-[14px] font-bold text-[#f5f3ef] uppercase tracking-wide">Participants</span>
+          <Users size={16} className="text-[var(--primary)]" />
+          <span className="text-[14px] font-bold text-[var(--text-primary)] uppercase tracking-wide">Participants</span>
         </div>
-        <span className="text-[13px] font-mono text-[#4a4845] font-bold">{players.length} JOINED</span>
+        <span className="text-[13px] font-mono text-[var(--text-secondary)] font-bold">{players.length} JOINED</span>
       </div>
 
-      <div className="bg-[#0d0d0d] border border-white/6 rounded-2xl p-6 min-h-[160px]">
+      <div className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-2xl p-6 min-h-[160px]">
         {players.length > 0 ? (
           <div className="flex flex-wrap gap-2.5">
             <AnimatePresence>
@@ -40,7 +40,7 @@ const Lobby = ({ gameCode, players }: { gameCode: string; players: string[] }) =
                   key={i}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="px-4 py-2 bg-[#161616] border border-white/8 rounded-full text-[13px] text-[#f5f3ef] font-semibold"
+                  className="px-4 py-2 bg-[var(--bg-surface)] border border-[var(--border)] rounded-full text-[13px] text-[var(--text-primary)] font-semibold shadow-sm"
                 >
                   {name}
                 </motion.span>
@@ -48,7 +48,7 @@ const Lobby = ({ gameCode, players }: { gameCode: string; players: string[] }) =
             </AnimatePresence>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-8 text-[#4a4845]">
+          <div className="flex flex-col items-center justify-center py-8 text-[var(--text-muted)]">
             <p className="text-[14px] font-medium animate-pulse uppercase tracking-widest">Waiting for players...</p>
           </div>
         )}
@@ -61,28 +61,28 @@ const Lobby = ({ gameCode, players }: { gameCode: string; players: string[] }) =
 const QuestionView = ({ question, playersAnswered, totalPlayers }: {
   question: any; playersAnswered: number; totalPlayers: number;
 }) => {
-  const colors = ['#ef4444', '#3b82f6', '#eab308', '#22c55e'];
+  const colors = ['#EF4444', '#3B82F6', '#F59E0B', '#22C55E'];
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between px-6 py-4 bg-[#161616] border border-white/8 rounded-xl shadow-lg">
+      <div className="flex items-center justify-between px-6 py-4 bg-[var(--bg-surface)] border border-[var(--border)] rounded-xl shadow-md">
         <div className="flex items-center gap-3">
           <div className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#b5179e] opacity-60" />
-            <span className="relative inline-flex h-3 w-3 rounded-full bg-[#b5179e]" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-60" />
+            <span className="relative inline-flex h-3 w-3 rounded-full bg-[var(--primary)]" />
           </div>
-          <span className="text-[14px] font-bold text-[#f5f3ef] uppercase tracking-wider">Live</span>
+          <span className="text-[14px] font-bold text-[var(--text-primary)] uppercase tracking-wider">Live</span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-[12px] font-bold text-[#4a4845] uppercase tracking-wide">Responses</span>
-          <span className="text-2xl font-mono font-black text-[#b5179e]">
-            {playersAnswered}<span className="text-[#4a4845] text-lg">/{totalPlayers}</span>
+          <span className="text-[12px] font-bold text-[var(--text-secondary)] uppercase tracking-wide">Responses</span>
+          <span className="text-2xl font-mono font-black text-[var(--primary)]">
+            {playersAnswered}<span className="text-[var(--text-muted)] text-lg">/{totalPlayers}</span>
           </span>
         </div>
       </div>
 
       <div className="py-12">
-        <h2 className="text-3xl md:text-5xl font-bold text-[#f5f3ef] text-center leading-[1.2]">
+        <h2 className="text-3xl md:text-5xl font-bold text-[var(--text-primary)] text-center leading-[1.2]">
           {question.text}
         </h2>
       </div>
@@ -91,16 +91,16 @@ const QuestionView = ({ question, playersAnswered, totalPlayers }: {
         {question.options.map((opt: any, i: number) => (
           <div
             key={opt.id}
-            className="flex items-center gap-4 p-6 bg-[#161616] border border-white/6 rounded-2xl transition-all hover:border-white/12"
+            className="flex items-center gap-4 p-6 bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl transition-all shadow-sm"
             style={{ borderLeftWidth: '6px', borderLeftColor: colors[i % 4] }}
           >
             <div
-              className="w-8 h-8 rounded-lg text-[14px] font-black text-white flex items-center justify-center shrink-0 shadow-lg"
+              className="w-8 h-8 rounded-lg text-[14px] font-black text-white flex items-center justify-center shrink-0 shadow-sm"
               style={{ background: colors[i % 4] }}
             >
               {String.fromCharCode(65 + i)}
             </div>
-            <span className="text-[18px] font-semibold text-[#f5f3ef]">{opt.text}</span>
+            <span className="text-[18px] font-semibold text-[var(--text-primary)]">{opt.text}</span>
           </div>
         ))}
       </div>
@@ -112,10 +112,10 @@ const QuestionView = ({ question, playersAnswered, totalPlayers }: {
 const LeaderboardView = ({ leaderboard, onNext }: { leaderboard: any[]; onNext: () => void }) => (
   <div className="space-y-8 max-w-xl mx-auto">
     <div className="text-center">
-      <div className="w-16 h-16 bg-[#b5179e]/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[#b5179e]/20 shadow-[0_0_20px_rgba(181,23,158,0.1)]">
-        <Trophy size={32} className="text-[#b5179e]" />
+      <div className="w-16 h-16 bg-[var(--primary)]/5 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[var(--primary)]/10 shadow-sm">
+        <Trophy size={32} className="text-[var(--primary)]" />
       </div>
-      <h2 className="text-2xl font-bold text-[#f5f3ef]">Current Standings</h2>
+      <h2 className="text-2xl font-bold text-[var(--text-primary)]">Current Standings</h2>
     </div>
 
     <div className="space-y-3">
@@ -127,19 +127,19 @@ const LeaderboardView = ({ leaderboard, onNext }: { leaderboard: any[]; onNext: 
           transition={{ delay: i * 0.1 }}
           className={`flex items-center justify-between px-6 py-4 rounded-2xl border transition-all ${
             i === 0
-              ? 'bg-[#b5179e]/10 border-[#b5179e]/30 scale-[1.02] shadow-[0_0_30px_rgba(181,23,158,0.1)]'
-              : 'bg-[#161616] border-white/7'
+              ? 'bg-[var(--primary)]/5 border-[var(--primary)]/20 scale-[1.02] shadow-md'
+              : 'bg-[var(--bg-surface)] border-[var(--border)]'
           }`}
         >
           <div className="flex items-center gap-4">
-            <span className={`text-[15px] font-mono font-black ${i === 0 ? 'text-[#b5179e]' : 'text-[#4a4845]'} w-6`}>
+            <span className={`text-[15px] font-mono font-black ${i === 0 ? 'text-[var(--primary)]' : 'text-[var(--text-secondary)]'} w-6`}>
               #{i + 1}
             </span>
-            <span className={`text-[16px] font-bold ${i === 0 ? 'text-[#f5f3ef]' : 'text-[#8a8780]'}`}>
+            <span className={`text-[16px] font-bold ${i === 0 ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
               {p.name}
             </span>
           </div>
-          <span className="text-[18px] font-mono font-black text-[#b5179e]">{p.score}</span>
+          <span className="text-[18px] font-mono font-black text-[var(--primary)]">{p.score}</span>
         </motion.div>
       ))}
     </div>
@@ -157,11 +157,11 @@ const GameOverView = ({ leaderboard, onDashboard }: { leaderboard: any[]; onDash
   <div className="space-y-10 text-center max-w-xl mx-auto">
     <div>
       <div className="relative inline-block mb-6">
-        <Trophy size={64} className="text-[#b5179e] mx-auto animate-bounce" />
-        <div className="absolute inset-0 bg-[#b5179e]/20 blur-3xl rounded-full -z-10" />
+        <Trophy size={64} className="text-[var(--primary)] mx-auto animate-bounce" />
+        <div className="absolute inset-0 bg-[var(--primary)]/10 blur-3xl rounded-full -z-10" />
       </div>
-      <h2 className="text-4xl font-black text-[#f5f3ef] uppercase tracking-tight">Final Results</h2>
-      <p className="text-[15px] text-[#8a8780] font-medium mt-2">Session Complete</p>
+      <h2 className="text-4xl font-black text-[var(--text-primary)] uppercase tracking-tight">Final Results</h2>
+      <p className="text-[15px] text-[var(--text-secondary)] font-medium mt-2">Session Complete</p>
     </div>
 
     <div className="space-y-3 text-left">
@@ -170,17 +170,17 @@ const GameOverView = ({ leaderboard, onDashboard }: { leaderboard: any[]; onDash
           key={p.name}
           className={`flex items-center justify-between px-6 py-5 rounded-2xl border ${
             i === 0 
-              ? 'bg-[#b5179e] border-transparent text-black shadow-xl' 
-              : 'bg-[#161616] border-white/7 text-[#f5f3ef]'
+              ? 'bg-[var(--primary)] border-transparent text-white shadow-xl' 
+              : 'bg-[var(--bg-surface)] border-[var(--border)] text-[var(--text-primary)]'
           }`}
         >
           <div className="flex items-center gap-4">
-            <span className={`text-[16px] font-mono font-black ${i === 0 ? 'text-black/50' : 'text-[#4a4845]'} w-6`}>
+            <span className={`text-[16px] font-mono font-black ${i === 0 ? 'text-white/60' : 'text-[var(--text-muted)]'} w-6`}>
               #{i + 1}
             </span>
             <span className="text-[18px] font-bold">{p.name}</span>
           </div>
-          <span className={`text-[20px] font-mono font-black ${i === 0 ? 'text-black' : 'text-[#b5179e]'}`}>
+          <span className={`text-[20px] font-mono font-black ${i === 0 ? 'text-white' : 'text-[var(--primary)]'}`}>
             {p.score}
           </span>
         </div>
@@ -188,7 +188,7 @@ const GameOverView = ({ leaderboard, onDashboard }: { leaderboard: any[]; onDash
     </div>
 
     <div className="flex gap-4">
-      <Button variant="secondary" onClick={onDashboard} fullWidth size="lg" className="h-14">
+      <Button variant="outline" onClick={onDashboard} fullWidth size="lg" className="h-14">
         Dashboard
       </Button>
       <Button onClick={() => window.location.reload()} fullWidth size="lg" className="h-14 gap-3">
@@ -248,13 +248,13 @@ export default function HostPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] pt-20 pb-16">
+    <div className="min-h-screen bg-[var(--bg-base)] pt-20 pb-16">
       <div className="w-full max-w-3xl mx-auto px-4 sm:px-6">
         {view === 'lobby' && (
           <div className="mb-8">
             <button
               onClick={() => router.push('/dashboard')}
-              className="flex items-center gap-2 text-[13px] font-bold text-[#4a4845] hover:text-[#f5f3ef] uppercase tracking-widest transition-colors"
+              className="flex items-center gap-2 text-[13px] font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] uppercase tracking-widest transition-colors"
             >
               <ArrowLeft size={16} /> Dashboard
             </button>

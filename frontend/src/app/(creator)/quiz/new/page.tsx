@@ -40,39 +40,39 @@ export default function NewQuizPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] pt-28 pb-20">
+    <div className="min-h-screen bg-[var(--bg-base)] pt-28 pb-20">
       <div className="w-full max-w-5xl mx-auto px-4 sm:px-6">
         <div className="max-w-md mx-auto">
           {/* Back Button */}
           <button
             onClick={() => router.push('/dashboard')}
-            className="flex items-center gap-2 text-[13px] text-[#4a4845] hover:text-[#f5f3ef] transition-colors mb-6 font-medium group"
+            className="flex items-center gap-2 text-[13px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors mb-6 font-medium group"
           >
             <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
             Back to Dashboard
           </button>
 
           {/* Heading */}
-          <h1 className="text-lg font-semibold text-[#f5f3ef] mb-6">New Quiz</h1>
+          <h1 className="text-lg font-semibold text-[var(--text-primary)] mb-6">New Quiz</h1>
 
           {/* Mode Toggle */}
-          <div className="flex p-1.5 bg-[#161616] border border-white/7 rounded-2xl mb-10 relative">
+          <div className="flex p-1.5 bg-[var(--bg-surface)] border border-[var(--border)] rounded-2xl mb-10 relative">
             {(['manual', 'ai'] as const).map((m) => (
               <button
                 key={m}
                 onClick={() => setMode(m)}
                 className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-xl text-[13px] font-bold transition-all z-10 ${
                   mode === m
-                    ? 'text-black'
-                    : 'text-[#8a8780] hover:text-[#f5f3ef]'
+                    ? 'text-[var(--text-primary)]'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 {m === 'ai' && <motion.div animate={{ rotate: [0, 15, 0] }} transition={{ repeat: Infinity, duration: 2 }}><Wand2 size={14} /></motion.div>}
-                {m === 'manual' ? 'Manual Create' : 'AI AI Generation'}
+                {m === 'manual' ? 'Manual Create' : 'AI Generation'}
                 {mode === m && (
                   <motion.div
                     layoutId="mode-bg"
-                    className="absolute inset-y-1.5 bg-[#b5179e] rounded-xl -z-10 shadow-[0_0_20px_rgba(181,23,158,0.3)]"
+                    className="absolute inset-y-1.5 bg-[var(--bg-elevated)] rounded-xl -z-10 shadow-sm"
                     style={{ width: 'calc(50% - 6px)', left: m === 'manual' ? '6px' : 'calc(50%)' }}
                     transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
                   />
@@ -126,15 +126,15 @@ export default function NewQuizPage() {
                 >
                   {/* PDF Upload Zone */}
                   <div>
-                    <label className="block text-[12px] font-medium text-[#8a8780] mb-3 tracking-wide uppercase">
+                    <label className="block text-[12px] font-medium text-[var(--text-secondary)] mb-3 tracking-wide uppercase">
                       Upload Source PDF
                     </label>
                       <div
                         onClick={() => document.getElementById('pdf-upload')?.click()}
                         className={`flex flex-col items-center justify-center gap-3 p-8 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
                           file
-                            ? 'bg-[#b5179e]/5 border-[#b5179e]/30'
-                            : 'bg-[#0a0a0a] border-white/7 hover:border-white/15'
+                            ? 'bg-[var(--primary)]/5 border-[var(--primary)]/30'
+                            : 'bg-transparent border-[var(--border)] hover:border-[var(--primary)]/30'
                         }`}
                       >
                         <input
@@ -146,29 +146,29 @@ export default function NewQuizPage() {
                         />
                         {file ? (
                           <>
-                            <FileText size={24} className="text-[#b5179e]" />
+                            <FileText size={24} className="text-[#7C3AED]" />
                           <div className="text-center">
-                            <p className="text-[13px] font-semibold text-[#f5f3ef] mb-1 truncate max-w-[200px]">
+                            <p className="text-[13px] font-semibold text-[var(--text-primary)] mb-1 truncate max-w-[200px]">
                               {file.name}
                             </p>
-                            <p className="text-[11px] text-[#4a4845]">
+                            <p className="text-[11px] text-[var(--text-secondary)]">
                               {(file.size / 1024 / 1024).toFixed(2)} MB
                             </p>
                           </div>
                           <button
                             onClick={(e) => { e.stopPropagation(); setFile(null); }}
-                            className="text-[12px] text-[#ef4444] font-medium hover:underline mt-1"
+                            className="text-[12px] text-[#EF4444] font-medium hover:underline mt-1"
                           >
                             Remove file
                           </button>
                         </>
                       ) : (
                         <>
-                          <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center">
-                            <Upload size={18} className="text-[#8a8780]" />
+                          <div className="w-10 h-10 bg-[var(--bg-elevated)] rounded-full flex items-center justify-center">
+                            <Upload size={18} className="text-[var(--text-secondary)]" />
                           </div>
-                          <p className="text-[13px] text-[#8a8780] font-medium">Click to upload document</p>
-                          <p className="text-[11px] text-[#4a4845]">Maximum size: 10MB</p>
+                          <p className="text-[13px] text-[var(--text-secondary)] font-medium">Click to upload document</p>
+                          <p className="text-[11px] text-[var(--text-muted)]">Maximum size: 10MB</p>
                         </>
                       )}
                     </div>
@@ -176,14 +176,14 @@ export default function NewQuizPage() {
 
                   {/* Prompt Textarea */}
                   <div>
-                    <label className="flex items-center gap-2 text-[12px] font-medium text-[#8a8780] mb-3 tracking-wide uppercase">
-                      AI Instructions <Sparkles size={12} className="text-[#b5179e]" />
+                    <label className="flex items-center gap-2 text-[12px] font-medium text-[var(--text-secondary)] mb-3 tracking-wide uppercase">
+                      AI Instructions <Sparkles size={12} className="text-[var(--primary)]" />
                     </label>
                     <textarea
                       value={prompt}
                       onChange={(e) => setPrompt(e.target.value)}
                       placeholder="e.g. Create 10 challenging questions focusing on React hooks..."
-                      className="w-full h-[96px] p-4 text-[14px] text-[#f5f3ef] bg-[#0a0a0a] border border-white/8 rounded-xl focus:border-[#b5179e]/50 outline-none transition-all resize-none placeholder:text-[#4a4845]"
+                      className="w-full h-[96px] p-4 text-[14px] text-[var(--text-primary)] bg-transparent border border-[var(--border)] rounded-xl focus:border-[var(--primary)]/50 outline-none transition-all resize-none placeholder:text-[var(--text-muted)]"
                     />
                   </div>
 

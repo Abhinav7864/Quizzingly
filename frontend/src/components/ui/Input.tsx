@@ -12,7 +12,7 @@ export const Input = ({ label, id, error, helperText, className = '', ...props }
       {label && (
         <label
           htmlFor={id}
-          className="block text-[12px] font-medium text-[#8a8780] mb-2 tracking-wide uppercase"
+          className="block text-[11px] font-black text-[#8A846B] mb-2 tracking-[0.2em] ml-1 uppercase"
         >
           {label}
         </label>
@@ -20,19 +20,19 @@ export const Input = ({ label, id, error, helperText, className = '', ...props }
       <input
         id={id}
         className={[
-          'w-full h-11 px-4 text-[14px] text-[#f5f3ef] placeholder-[#4a4845]',
-          'bg-[#0d0d0d] border rounded-xl',
+          'w-full h-11 px-4 text-[15px] font-bold text-[#3B142A] placeholder-[#8A846B]/50',
+          'bg-[#EDE9D5] border-transparent rounded-xl',
           'transition-all duration-200 outline-none',
           error
-            ? 'border-[#ef4444] focus:ring-2 focus:ring-[#ef4444]/20'
-            : 'border-white/8 focus:border-[#b5179e]/50 focus:ring-4 focus:ring-[#b5179e]/10',
-          'disabled:opacity-40 disabled:cursor-not-allowed',
+            ? 'border-[#EF4444] focus:ring-2 focus:ring-[#EF4444]/20'
+            : 'focus:border-[#FF319F] focus:ring-4 focus:ring-[#FF319F]/5',
+          'disabled:opacity-40 disabled:cursor-not-allowed shadow-inner',
           className,
         ].join(' ')}
         {...props}
       />
-      {error && <p className="mt-1.5 text-[12px] text-[#ef4444]">{error}</p>}
-      {helperText && !error && <p className="mt-1.5 text-[12px] text-[#4a4845]">{helperText}</p>}
+      {error && <p className="mt-1.5 text-[12px] text-[#EF4444]">{error}</p>}
+      {helperText && !error && <p className="mt-1.5 text-[12px] text-[#8A846B] font-bold">{helperText}</p>}
     </div>
   );
 };

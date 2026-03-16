@@ -6,6 +6,7 @@ import { Question, Option } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useApi } from '@/hooks/useApi';
+import { Plus } from 'lucide-react';
 
 interface QuestionFormProps {
   quizId: string;
@@ -104,17 +105,17 @@ export const QuestionForm = ({ quizId, questionToEdit, onQuestionSaved, onCancel
         required
       />
       <div>
-        <h3 className="text-lg font-medium mb-2">Options</h3>
-        <p className="text-sm text-gray-400 mb-3">Select the correct answer by clicking the radio button.</p>
+        <h3 className="text-[14px] font-black text-[#3B142A] mb-2 uppercase tracking-wider">Options</h3>
+        <p className="text-[12px] text-[#8A846B] font-bold mb-5">Select the correct answer by clicking the indicator on the left.</p>
         <div className="space-y-4">
           {options.map((option, index) => (
-            <div key={index} className="flex items-center space-x-2">
+            <div key={index} className="flex items-center gap-3">
               <input
                 type="radio"
                 name="correct-option"
                 checked={option.isCorrect}
                 onChange={() => handleOptionChange(index, 'isCorrect', true)}
-                className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-700 bg-gray-800"
+                className="h-5 w-5 accent-[#FF319F] border-gray-100"
               />
               <Input
                 type="text"
@@ -122,22 +123,38 @@ export const QuestionForm = ({ quizId, questionToEdit, onQuestionSaved, onCancel
                 onChange={(e) => handleOptionChange(index, 'text', e.target.value)}
                 placeholder={`Option ${index + 1}`}
                 required
-                className="flex-grow"
               />
-              <Button type="button" onClick={() => removeOption(index)} disabled={options.length <= 2} className="bg-red-800 hover:bg-red-700 text-xs px-2 py-1">
-                X
+              <Button 
+                type="button" 
+                variant="danger" 
+                size="sm"
+                onClick={() => removeOption(index)} 
+                disabled={options.length <= 2}
+                className="w-10 h-10 p-0 rounded-xl"
+              >
+                ✕
               </Button>
             </div>
           ))}
         </div>
-        <Button type="button" onClick={addOption} disabled={options.length >= 6} className="mt-4 bg-gray-700 hover:bg-gray-600">
-          Add Option
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={addOption} 
+          disabled={options.length >= 6} 
+          className="mt-4 gap-2"
+        >
+          <Plus size={14} /> Add Option
         </Button>
       </div>
-      <div className="flex justify-end space-x-4">
-        {questionToEdit && <Button type="button" onClick={onCancelEdit} className="bg-gray-600 hover:bg-gray-500">Cancel Edit</Button>}
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? 'Saving...' : (questionToEdit ? 'Update Question' : 'Save Question')}
+      <div className="flex justify-end gap-3 pt-6 border-t border-[#E5E0C9]">
+        {questionToEdit && (
+          <Button type="button" variant="ghost" onClick={onCancelEdit}>
+            Cancel Edit
+          </Button>
+        )}
+        <Button type="submit" variant="primary" isLoading={isLoading} disabled={isLoading}>
+          {questionToEdit ? 'Update Question' : 'Save Question'}
         </Button>
       </div>
     </form>

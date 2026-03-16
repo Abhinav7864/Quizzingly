@@ -34,17 +34,19 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d0d0d] flex flex-col items-center justify-center px-4">
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center gap-3 mb-10"
-      >
-        <div className="w-8 h-8 bg-[#b5179e] rounded-lg flex items-center justify-center">
-          <Zap size={18} className="text-white fill-current" />
-        </div>
-        <span className="text-[18px] font-bold text-[#f5f3ef]">Quizzingly</span>
-      </motion.div>
+    <div className="min-h-screen bg-[var(--bg-base)] flex flex-col items-center justify-center px-4">
+      <Link href="/">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-3 mb-10 hover:opacity-80 transition-opacity"
+        >
+          <div className="w-8 h-8 bg-[var(--primary)] rounded-lg flex items-center justify-center">
+            <Zap size={18} className="text-white fill-current" />
+          </div>
+          <span className="text-[18px] font-bold text-white">Quizzingly</span>
+        </motion.div>
+      </Link>
 
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -52,10 +54,10 @@ export default function RegisterPage() {
         transition={{ delay: 0.05 }}
         className="w-full max-w-[380px]"
       >
-        <Card className="rounded-[32px] border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.5)] overflow-hidden">
-          <div className="px-8 py-6 border-b border-white/6 bg-white/[0.02]">
-            <h1 className="text-[18px] font-black text-[#f5f3ef] tracking-tight">Create account</h1>
-            <p className="text-[14px] font-medium text-[#8a8780] mt-1">Start hosting amazing quizzes</p>
+        <Card className="rounded-[40px] border-[#E5E0C9] shadow-2xl overflow-hidden bg-[#F3EFDA]">
+          <div className="px-8 py-8 border-b border-[#E5E0C9]/50 bg-[#F3EFDA]">
+            <h1 className="text-[22px] font-black text-[#3B142A] tracking-tight">Create account</h1>
+            <p className="text-[14px] font-bold text-[#6B6651] mt-2">Start hosting amazing quizzes</p>
           </div>
 
           <form onSubmit={handleSubmit} className="p-8 space-y-5">
@@ -68,7 +70,7 @@ export default function RegisterPage() {
               onChange={(e) => setUsername(e.target.value)}
               required
               autoComplete="username"
-              className="h-12 bg-[#0d0d0d]"
+              className="h-12"
             />
             <Input
               id="email"
@@ -79,7 +81,7 @@ export default function RegisterPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
-              className="h-12 bg-[#0d0d0d]"
+              className="h-12"
             />
             <Input
               id="password"
@@ -90,28 +92,28 @@ export default function RegisterPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="new-password"
-              className="h-12 bg-[#0d0d0d]"
+              className="h-12"
             />
 
             {error && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-[12px] text-[#ef4444] font-medium bg-[#ef4444]/5 border border-[#ef4444]/20 rounded-lg px-4 py-2.5"
+                className="text-[12px] text-[#EF4444] font-medium bg-[#EF4444]/5 border border-[#EF4444]/20 rounded-lg px-4 py-2.5"
               >
                 {error}
               </motion.div>
             )}
 
-            <Button type="submit" fullWidth size="lg" className="h-10 mt-2" isLoading={loading}>
+            <Button type="submit" fullWidth size="lg" className="h-12 mt-2" isLoading={loading}>
               Create account
             </Button>
           </form>
         </Card>
 
-        <p className="text-center text-[13px] text-[#8a8780] mt-6">
+        <p className="text-center text-[13px] text-[#F3EFDA]/60 mt-6 font-bold">
           Already have an account?{' '}
-          <Link href="/login" className="text-[#b5179e] hover:underline font-medium">
+          <Link href="/login" className="text-[#FF319F] hover:underline font-black">
             Sign in
           </Link>
         </p>
