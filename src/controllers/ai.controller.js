@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 const require = createRequire(import.meta.url);
 const pdf = require("pdf-parse");
 import { Groq } from "groq-sdk";
-import { YoutubeTranscript } from 'youtube-transcript/dist/youtube-transcript.esm.js';
+import { Innertube } from 'youtubei.js';
 import prisma from "../db/prisma.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,20 +38,53 @@ function imageToDataURI(buffer, mimetype) {
   return `data:${mimetype};base64,${buffer.toString("base64")}`;
 }
 
-/** Fetch a YouTube transcript and return it as a single string */
+/** Extract a video ID from a full YouTube URL or a bare ID */
+function extractVideoId(urlOrId) {
+  try {
+    const parsed = new URL(urlOrId);
+    // youtu.be/ID
+    if (parsed.hostname === 'youtu.be') return parsed.pathname.slice(1);
+    // youtube.com/watch?v=ID
+    return parsed.searchParams.get('v') || urlOrId;
+  } catch {
+    // Not a URL — assume it's already a raw video ID
+    return urlOrId;
+  }
+}
+
+/** Fetch a YouTube transcript using youtubei.js (Innertube API) */
 async function fetchYouTubeTranscript(url) {
   try {
-    const transcript = await YoutubeTranscript.fetchTranscript(url);
-    if (!transcript || transcript.length === 0) {
-      throw new Error("No transcript available for this video.");
+    const videoId = extractVideoId(url);
+    const yt = await Innertube.create({ generate_session_locally: true });
+    const info = await yt.getInfo(videoId);
+
+    const transcriptData = await info.getTranscript();
+    const segments = transcriptData?.transcript?.content?.body?.initial_segments;
+
+    if (!segments || segments.length === 0) {
+      throw new Error('No transcript available for this video.');
     }
-    // Join all transcript parts into one text block
-    const fullText = transcript.map(part => part.text).join(' ');
-    // Limit to 15k chars to stay within context limits
+
+    const fullText = segments
+      .map(s => s?.snippet?.text || '')
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
     return `YouTube Video Transcript (truncated):\n${fullText.substring(0, 15000)}`;
   } catch (error) {
-    console.error("YouTube transcript fetch failed:", error);
-    throw new Error("Failed to fetch video transcript. Some videos have transcripts disabled or are restricted.");
+    console.error('YouTube transcript fetch failed:', error);
+    const msg = error?.message || '';
+
+    if (msg.includes('No transcript')) {
+      throw new Error(
+        'This YouTube video does not have a transcript available. ' +
+        'Try a video that has captions/subtitles enabled.'
+      );
+    }
+
+    throw new Error('Failed to fetch YouTube transcript: ' + msg);
   }
 }
 
