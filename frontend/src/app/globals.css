@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
+/* Root Css Variables */
 :root {
-  /* Neo-Brutalist SaaS Palette */
   --bg-base: #F6F6F6;
   --bg-surface: #FFFFFF;
   --bg-elevated: #F0F0F0;
@@ -51,7 +51,6 @@ body {
   color: #ffffff;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -69,7 +68,6 @@ body {
   background: #C0C0C0;
 }
 
-/* Utility classes */
 .font-mono {
   font-family: var(--font-mono);
 }
@@ -90,14 +88,12 @@ body {
   border-color: var(--primary);
 }
 
-/* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-/* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
   appearance: none;
