@@ -1,13 +1,51 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useGameStore } from '@/context/GameContext';
-import { emitStartGame, emitNextQuestion, initializeSocket, getSocket } from '@/lib/socket';
+import { emitStartGame, emitForceEndGame, initializeSocket, getSocket } from '@/lib/socket';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { ArrowLeft, Users, Play, ChevronRight, Trophy } from 'lucide-react';
+import { ArrowLeft, Users, Play, Trophy, StopCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+/* ── Live Leaderboard Sidebar ────────────────────────── */
+const LiveLeaderboardSidebar = ({ leaderboard }: { leaderboard: any[] }) => (
+  <div className="space-y-3">
+    <div className="flex items-center gap-2 px-1">
+      <div className="relative flex h-2.5 w-2.5">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-60" />
+        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[var(--primary)]" />
+      </div>
+      <span className="text-[11px] font-black text-[var(--text-secondary)] uppercase tracking-widest">Live Scores</span>
+    </div>
+    <div className="space-y-2">
+      {leaderboard.length === 0 ? (
+        <p className="text-[12px] text-[var(--text-muted)] text-center py-4">No answers yet</p>
+      ) : (
+        leaderboard.map((p, i) => (
+          <motion.div
+            key={p.name}
+            layout
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className={`flex items-center justify-between px-3 py-2.5 rounded-xl border-2 border-black text-sm ${
+              i === 0
+                ? 'bg-[#FFD166] shadow-[3px_3px_0px_black]'
+                : 'bg-white shadow-[2px_2px_0px_black]'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="text-[11px] font-mono font-black text-[var(--text-muted)] w-4">#{i + 1}</span>
+              <span className="font-bold text-[var(--text-primary)] truncate max-w-[90px]">{p.name}</span>
+            </div>
+            <span className="font-mono font-black text-[var(--primary)] shrink-0">{p.score}</span>
+          </motion.div>
+        ))
+      )}
+    </div>
+  </div>
+);
 
 /* ── Lobby ─────────────────────────────────────────── */
 const Lobby = ({ gameCode, players }: { gameCode: string; players: string[] }) => (
@@ -57,8 +95,16 @@ const Lobby = ({ gameCode, players }: { gameCode: string; players: string[] }) =
 );
 
 /* ── Question view ─────────────────────────────────── */
-const QuestionView = ({ question, playersAnswered, totalPlayers }: {
-  question: any; playersAnswered: number; totalPlayers: number;
+const QuestionView = ({
+  question,
+  playersAnswered,
+  totalPlayers,
+  liveLeaderboard,
+}: {
+  question: any;
+  playersAnswered: number;
+  totalPlayers: number;
+  liveLeaderboard: any[];
 }) => {
   const colors = ['#EF4444', '#3B82F6', '#F59E0B', '#22C55E'];
   const [timeLeft, setTimeLeft] = useState(question.timeLimit || 20);
@@ -77,76 +123,100 @@ const QuestionView = ({ question, playersAnswered, totalPlayers }: {
   const isLow = timeLeft <= 5;
 
   return (
-    <div className="space-y-6">
-      {/* Status bar */}
-      <div className="flex items-center justify-between px-5 py-3 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_black]">
-        <div className="flex items-center gap-3">
-          <div className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-60" />
-            <span className="relative inline-flex h-3 w-3 rounded-full bg-[var(--primary)]" />
-          </div>
-          <span className="text-[14px] font-bold text-[var(--text-primary)] uppercase tracking-wider">Live</span>
-        </div>
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <span className="text-[12px] font-bold text-[var(--text-secondary)] uppercase tracking-wide">Responses</span>
-            <span className="text-xl font-mono font-black text-[var(--primary)]">
-              {playersAnswered}<span className="text-[var(--text-muted)] text-base">/{totalPlayers}</span>
-            </span>
-          </div>
-          <div className={`flex items-center gap-2 px-3 py-1 rounded-lg border-2 ${isLow ? 'bg-[#EF4444]/10 border-[#EF4444]' : 'bg-[#F6F6F6] border-black'}`}>
-            <span className={`text-[22px] font-mono font-black tabular-nums ${isLow ? 'text-[#EF4444]' : 'text-[#1E1E1E]'}`}>{timeLeft}s</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Timer bar */}
-      <div className="h-2 bg-white border-2 border-black rounded-full overflow-hidden shadow-[2px_2px_0px_black]">
-        <motion.div
-          className={`h-full ${isLow ? 'bg-[#EF4444]' : 'bg-[var(--primary)]'}`}
-          initial={{ width: '100%' }}
-          animate={{ width: `${pct}%` }}
-          transition={{ duration: 1, ease: 'linear' }}
-        />
-      </div>
-
-      {/* Question text */}
-      <div className="py-10">
-        <h2 className="text-3xl md:text-5xl font-bold text-[var(--text-primary)] text-center leading-[1.2]">
-          {question.text}
-        </h2>
-      </div>
-
-      {/* Option cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {question.options.map((opt: any, i: number) => (
-          <div
-            key={opt.id}
-            className="flex items-center gap-4 p-6 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_black]"
-            style={{ borderLeftWidth: '6px', borderLeftColor: colors[i % 4] }}
-          >
-            <div
-              className="w-8 h-8 rounded-lg text-[14px] font-black text-white flex items-center justify-center shrink-0"
-              style={{ background: colors[i % 4] }}
-            >
-              {String.fromCharCode(65 + i)}
+    <div className="flex gap-6">
+      {/* Main question area */}
+      <div className="flex-1 space-y-6">
+        {/* Status bar */}
+        <div className="flex items-center justify-between px-5 py-3 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_black]">
+          <div className="flex items-center gap-3">
+            <div className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-60" />
+              <span className="relative inline-flex h-3 w-3 rounded-full bg-[var(--primary)]" />
             </div>
-            <span className="text-[18px] font-semibold text-[var(--text-primary)]">{opt.text}</span>
+            <span className="text-[14px] font-bold text-[var(--text-primary)] uppercase tracking-wider">Live</span>
           </div>
-        ))}
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <span className="text-[12px] font-bold text-[var(--text-secondary)] uppercase tracking-wide">Responses</span>
+              <span className="text-xl font-mono font-black text-[var(--primary)]">
+                {playersAnswered}<span className="text-[var(--text-muted)] text-base">/{totalPlayers}</span>
+              </span>
+            </div>
+            <div className={`flex items-center gap-2 px-3 py-1 rounded-lg border-2 ${isLow ? 'bg-[#EF4444]/10 border-[#EF4444]' : 'bg-[#F6F6F6] border-black'}`}>
+              <span className={`text-[22px] font-mono font-black tabular-nums ${isLow ? 'text-[#EF4444]' : 'text-[#1E1E1E]'}`}>{timeLeft}s</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Timer bar */}
+        <div className="h-2 bg-white border-2 border-black rounded-full overflow-hidden shadow-[2px_2px_0px_black]">
+          <motion.div
+            className={`h-full ${isLow ? 'bg-[#EF4444]' : 'bg-[var(--primary)]'}`}
+            initial={{ width: '100%' }}
+            animate={{ width: `${pct}%` }}
+            transition={{ duration: 1, ease: 'linear' }}
+          />
+        </div>
+
+        {/* Question text */}
+        <div className="py-10">
+          <h2 className="text-3xl md:text-5xl font-bold text-[var(--text-primary)] text-center leading-[1.2]">
+            {question.text}
+          </h2>
+        </div>
+
+        {/* Option cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {question.options.map((opt: any, i: number) => (
+            <div
+              key={opt.id}
+              className="flex items-center gap-4 p-6 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_black]"
+              style={{ borderLeftWidth: '6px', borderLeftColor: colors[i % 4] }}
+            >
+              <div
+                className="w-8 h-8 rounded-lg text-[14px] font-black text-white flex items-center justify-center shrink-0"
+                style={{ background: colors[i % 4] }}
+              >
+                {String.fromCharCode(65 + i)}
+              </div>
+              <span className="text-[18px] font-semibold text-[var(--text-primary)]">{opt.text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Live leaderboard sidebar */}
+      <div className="w-52 shrink-0 bg-white border-2 border-black rounded-xl p-4 shadow-[4px_4px_0px_black] self-start">
+        <LiveLeaderboardSidebar leaderboard={liveLeaderboard} />
       </div>
     </div>
   );
 };
 
-/* ── Leaderboard ───────────────────────────────────── */
-const LeaderboardView = ({ leaderboard, onNext }: { leaderboard: any[]; onNext: () => void }) => (
+/* ── Leaderboard (between questions — auto-advances) ─── */
+const LeaderboardView = ({
+  leaderboard,
+  countdownSeconds,
+}: {
+  leaderboard: any[];
+  countdownSeconds: number | null;
+}) => (
   <div className="space-y-8 max-w-xl mx-auto">
     <div className="text-center">
       <div className="w-16 h-16 bg-[#FFD166] rounded-xl flex items-center justify-center mx-auto mb-4 border-2 border-black shadow-[4px_4px_0px_black]">
         <Trophy size={32} className="text-[var(--primary)]" />
       </div>
       <h2 className="text-2xl font-bold text-[var(--text-primary)]">Current Standings</h2>
+      {countdownSeconds !== null && (
+        <motion.p
+          key={countdownSeconds}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="mt-2 text-[13px] font-bold text-[var(--text-secondary)] uppercase tracking-widest"
+        >
+          Next question in {countdownSeconds}s…
+        </motion.p>
+      )}
     </div>
 
     <div className="space-y-3">
@@ -173,12 +243,6 @@ const LeaderboardView = ({ leaderboard, onNext }: { leaderboard: any[]; onNext: 
           <span className="text-[18px] font-mono font-black text-[var(--primary)]">{p.score}</span>
         </motion.div>
       ))}
-    </div>
-
-    <div className="pt-6">
-      <Button onClick={onNext} fullWidth size="lg" className="h-14 gap-3 text-lg">
-        Next Question <ChevronRight size={20} />
-      </Button>
     </div>
   </div>
 );
@@ -234,27 +298,62 @@ export default function HostPage() {
   const store = useGameStore();
   const [view, setView] = useState<'lobby' | 'question' | 'leaderboard' | 'gameOver'>('lobby');
   const [playersAnswered, setPlayersAnswered] = useState(0);
+  const [liveLeaderboard, setLiveLeaderboard] = useState<any[]>([]);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     try { getSocket(); } catch { router.push('/dashboard'); return; }
     initializeSocket({
       onPlayerListUpdate: store.setPlayers,
-      onNewQuestion: (q) => { store.setCurrentQuestion(q); setView('question'); setPlayersAnswered(0); },
+      onNewQuestion: (q) => {
+        store.setCurrentQuestion(q);
+        setView('question');
+        setPlayersAnswered(0);
+        setLiveLeaderboard([]);
+        setCountdown(null);
+        if (countdownRef.current) clearInterval(countdownRef.current);
+      },
+      onLiveLeaderboard: (l) => setLiveLeaderboard(l),
       onLeaderboardUpdate: (l) => { store.setLeaderboard(l); setView('leaderboard'); },
+      onNextQuestionCountdown: ({ seconds }) => {
+        setCountdown(seconds);
+        if (countdownRef.current) clearInterval(countdownRef.current);
+        let remaining = seconds;
+        countdownRef.current = setInterval(() => {
+          remaining -= 1;
+          if (remaining <= 0) {
+            clearInterval(countdownRef.current!);
+            setCountdown(null);
+          } else {
+            setCountdown(remaining);
+          }
+        }, 1000);
+      },
       onGameOver: (r) => { store.setGameResult(r); setView('gameOver'); },
+      onForceEnded: () => { router.push('/dashboard'); },
       onAnswerSubmitted: () => setPlayersAnswered((p) => p + 1),
       onTimesUp: () => setPlayersAnswered(store.players.length),
     });
+
+    return () => {
+      if (countdownRef.current) clearInterval(countdownRef.current);
+    };
   }, []);
 
   const renderView = () => {
     switch (view) {
       case 'question':
         return store.currentQuestion ? (
-          <QuestionView question={store.currentQuestion} playersAnswered={playersAnswered} totalPlayers={store.players.length} />
+          <QuestionView
+            question={store.currentQuestion}
+            playersAnswered={playersAnswered}
+            totalPlayers={store.players.length}
+            liveLeaderboard={liveLeaderboard}
+          />
         ) : null;
       case 'leaderboard':
-        return <LeaderboardView leaderboard={store.leaderboard} onNext={() => emitNextQuestion(gameCode)} />;
+        return <LeaderboardView leaderboard={store.leaderboard} countdownSeconds={countdown} />;
       case 'gameOver':
         return <GameOverView leaderboard={store.gameResult || store.leaderboard} onDashboard={() => router.push('/dashboard')} />;
       default:
@@ -275,9 +374,11 @@ export default function HostPage() {
     }
   };
 
+  const showForceEnd = view === 'question' || view === 'leaderboard';
+
   return (
     <div className="min-h-screen bg-[var(--bg-base)] pt-20 pb-16">
-      <div className="w-full max-w-3xl mx-auto px-4 sm:px-6">
+      <div className="w-full max-w-5xl mx-auto px-4 sm:px-6">
         {view === 'lobby' && (
           <div className="mb-8">
             <button
@@ -288,6 +389,24 @@ export default function HostPage() {
             </button>
           </div>
         )}
+
+        {/* Force-end button — visible during active game */}
+        {showForceEnd && (
+          <div className="mb-6 flex justify-end">
+            <button
+              id="force-end-btn"
+              onClick={() => {
+                if (confirm('End the quiz now? No results will be saved.')) {
+                  emitForceEndGame(gameCode);
+                }
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-[#EF4444] text-white border-2 border-black rounded-xl font-bold text-[13px] uppercase tracking-wider shadow-[3px_3px_0px_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_black] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
+            >
+              <StopCircle size={16} /> End Quiz
+            </button>
+          </div>
+        )}
+
         <AnimatePresence mode="wait">
           <motion.div
             key={view}

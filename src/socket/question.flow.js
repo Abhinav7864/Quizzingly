@@ -3,11 +3,32 @@ import { calculateScore } from "./scoring.js";
 import { sendLeaderboard } from "./leaderboard.js";
 import prisma from "../db/prisma.js";
 
+// Map<gameCode, timeoutId> — tracks active question timers so they can be cancelled
+const activeTimers = new Map();
+
+export const cancelGameTimers = (gameCode) => {
+  // Cancel the active question timer
+  const timerId = activeTimers.get(gameCode);
+  if (timerId) {
+    clearTimeout(timerId);
+    activeTimers.delete(gameCode);
+    console.log(`[TIMER] Cancelled question timer for game ${gameCode}`);
+  }
+  // Also cancel any pending between-question countdown
+  const countdownId = activeTimers.get(`countdown:${gameCode}`);
+  if (countdownId) {
+    clearTimeout(countdownId);
+    activeTimers.delete(`countdown:${gameCode}`);
+    console.log(`[TIMER] Cancelled countdown timer for game ${gameCode}`);
+  }
+};
+
 export const sendQuestion = async (gameCode) => {
   const game = await redis.hgetall(`game:${gameCode}`);
   if (!game) return;
 
   const questionsJson = await redis.get(`questions:${gameCode}`);
+  if (!questionsJson) return;  // game was force-ended mid-flight
   const questions = JSON.parse(questionsJson);
   const currentQuestionIndex = parseInt(game.currentQuestionIndex);
 
@@ -30,11 +51,21 @@ export const sendQuestion = async (gameCode) => {
 
   global.io.to(gameCode).emit("server:new_question", payload);
 
-  setTimeout(() => {
-    endQuestion(gameCode);
+  // Store timer so it can be cancelled on force-end
+  const timerId = setTimeout(() => {
+    activeTimers.delete(gameCode);
+    endQuestion(gameCode).catch((err) =>
+      console.error(`[ERROR] endQuestion crashed for ${gameCode}:`, err)
+    );
   }, question.timeLimit * 1000);
+
+  activeTimers.set(gameCode, timerId);
 };
+
 export const endGame = async (gameCode) => {
+  // Cancel any pending timer first
+  cancelGameTimers(gameCode);
+
   // Read game info FIRST before any redis.del calls
   const gameInfo = await redis.hgetall(`game:${gameCode}`);
 
@@ -132,6 +163,7 @@ export const endQuestion = async (gameCode) => {
   if (!game) return;
 
   const questionsJson = await redis.get(`questions:${gameCode}`);
+  if (!questionsJson) return;  // game was force-ended mid-flight
   const questions = JSON.parse(questionsJson);
   const currentQuestionIndex = parseInt(game.currentQuestionIndex);
   const question = questions[currentQuestionIndex];
@@ -195,15 +227,29 @@ export const endQuestion = async (gameCode) => {
 
   global.io.to(gameCode).emit("server:times_up");
 
-  sendLeaderboard(gameCode);
+  sendLeaderboard(gameCode).catch((err) =>
+    console.error(`[ERROR] sendLeaderboard crashed for ${gameCode}:`, err)
+  );
 
   await redis.hincrby(`game:${gameCode}`, "currentQuestionIndex", 1);
 
   const newIndex = parseInt(await redis.hget(`game:${gameCode}`, "currentQuestionIndex"));
 
   if (newIndex < questions.length) {
-    global.io.to(gameCode).emit("server:question_ended");
+    // Auto-advance: send a 3-second countdown then load next question
+    global.io.to(gameCode).emit("server:next_question_countdown", { seconds: 3 });
+
+    const countdownTimer = setTimeout(() => {
+      activeTimers.delete(`countdown:${gameCode}`);
+      sendQuestion(gameCode).catch((err) =>
+        console.error(`[ERROR] sendQuestion after countdown crashed for ${gameCode}:`, err)
+      );
+    }, 3000);
+
+    activeTimers.set(`countdown:${gameCode}`, countdownTimer);
   } else {
-    endGame(gameCode);
+    endGame(gameCode).catch((err) =>
+      console.error(`[ERROR] endGame crashed for ${gameCode}:`, err)
+    );
   }
 };

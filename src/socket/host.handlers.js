@@ -1,7 +1,7 @@
 import { redis } from "../redis/client.js";
 import { generateJoinCode } from "./utils.js";
 import prisma from "../db/prisma.js";
-import { sendQuestion } from "./question.flow.js";
+import { sendQuestion, cancelGameTimers } from "./question.flow.js";
 import { randomUUID } from "crypto";
 
 export const handleCreateGame = (socket) => {
@@ -65,8 +65,8 @@ export const handleStartGame = (socket) => {
   });
 };
 
-export const handleNextQuestion = (socket) => {
-  socket.on("host:next_question", async ({ gameCode }) => {
+export const handleForceEndGame = (socket) => {
+  socket.on("host:force_end_game", async ({ gameCode }) => {
     const game = await redis.hgetall(`game:${gameCode}`);
 
     if (!game || game.hostSocketId !== socket.id) {
@@ -74,7 +74,25 @@ export const handleNextQuestion = (socket) => {
       return;
     }
 
-    sendQuestion(gameCode);
+    console.log(`[HOST] Force-ending game ${gameCode}`);
+
+    // Cancel any pending question timers
+    cancelGameTimers(gameCode);
+
+    // Notify all clients — no DB write
+    global.io.to(gameCode).emit("server:game_force_ended", {
+      message: "Host ended the quiz early.",
+    });
+
+    // Wipe Redis data
+    await redis.del(
+      `game:${gameCode}`,
+      `players:${gameCode}`,
+      `leaderboard:${gameCode}`,
+      `answers:${gameCode}`,
+      `questions:${gameCode}`
+    );
+
+    console.log(`[HOST] Game ${gameCode} force-ended and Redis cleaned.`);
   });
 };
-

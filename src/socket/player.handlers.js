@@ -1,4 +1,6 @@
 import { redis } from "../redis/client.js";
+import { sendLiveLeaderboard } from "./leaderboard.js";
+import prisma from "../db/prisma.js";
 
 export const handleJoinGame = (socket) => {
   socket.on("player:join_game", async ({ gameCode, name, userId }) => {
@@ -52,9 +54,86 @@ export const handleSubmitAnswer = (socket) => {
       timestamp: Date.now()
     }));
 
+    // Immediately tell the answering player their answer was locked in
+    // NOTE: The actual correct/incorrect result is sent at endQuestion.
+    // Here we just confirm receipt so the player can auto-advance to "waiting" view.
     socket.emit("server:answer_received");
+
+    // Broadcast count update to room (e.g. host answer counter)
     socket.to(gameCode).emit("server:answer_received");
+
+    // Push a live leaderboard snapshot to all clients (shows current scores mid-question)
+    sendLiveLeaderboard(gameCode).catch((err) =>
+      console.error(`[ERROR] sendLiveLeaderboard crashed for ${gameCode}:`, err)
+    );
+
     console.log(`[ANSWER] Player ${socket.id} answered in ${gameCode}`);
+  });
+};
+
+export const handleLeaveEarly = (socket) => {
+  socket.on("player:leave_early", async ({ gameCode }) => {
+    const game = await redis.hgetall(`game:${gameCode}`);
+    if (!game) return;
+
+    const playerJson = await redis.hget(`players:${gameCode}`, socket.id);
+    if (!playerJson) return;
+
+    const player = JSON.parse(playerJson);
+    const score = parseInt((await redis.zscore(`leaderboard:${gameCode}`, socket.id)) || "0");
+
+    console.log(`[PLAYER] ${player.name} leaving early from ${gameCode} with score ${score}`);
+
+    // Save partial progress to DB if user is logged in
+    if (player.userId) {
+      const questionsJson = await redis.get(`questions:${gameCode}`);
+      const questions = JSON.parse(questionsJson);
+      const quizTitle = questions[0]?.quiz?.title ?? "Live Quiz";
+
+      // Get leaderboard position
+      const leaderboardData = await redis.zrange(`leaderboard:${gameCode}`, 0, -1, 'WITHSCORES');
+      const allScores = [];
+      for (let i = 0; i < leaderboardData.length; i += 2) {
+        allScores.push(parseInt(leaderboardData[i + 1]));
+      }
+      allScores.sort((a, b) => b - a);
+      const rank = allScores.indexOf(score) + 1;
+
+      await prisma.playerGameResult.create({
+        data: {
+          userId: player.userId,
+          sessionId: game.sessionId ?? null,
+          quizTitle,
+          score,
+          rank,
+          totalPlayers: allScores.length,
+          accuracy:
+            player.answersTotal === 0
+              ? 0
+              : player.answersCorrect / player.answersTotal,
+        },
+      });
+
+      console.log(`[PLAYER] Saved partial result for ${player.name} (rank ${rank})`);
+    }
+
+    // Remove from Redis
+    await redis.hdel(`players:${gameCode}`, socket.id);
+    await redis.zrem(`leaderboard:${gameCode}`, socket.id);
+    await redis.del(`socket:${socket.id}`);
+
+    // Notify the room that a player left
+    socket.to(gameCode).emit("server:player_left", { name: player.name });
+
+    // Emit personal summary back to the leaving player
+    socket.emit("server:left_early_summary", {
+      score,
+      name: player.name,
+    });
+
+    socket.leave(gameCode);
+
+    console.log(`[PLAYER] ${player.name} fully removed from ${gameCode}`);
   });
 };
 

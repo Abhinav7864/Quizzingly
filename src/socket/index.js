@@ -1,5 +1,5 @@
-import { handleCreateGame, handleStartGame, handleNextQuestion } from "./host.handlers.js";
-import { handleJoinGame, handleSubmitAnswer, handleDisconnect } from "./player.handlers.js";
+import { handleCreateGame, handleStartGame, handleForceEndGame } from "./host.handlers.js";
+import { handleJoinGame, handleSubmitAnswer, handleLeaveEarly, handleDisconnect } from "./player.handlers.js";
 
 export const registerSocketHandlers = (io) => {
   global.io = io;
@@ -8,10 +8,10 @@ export const registerSocketHandlers = (io) => {
     console.log(`[CONNECTION] New socket connected: ${socket.id}`);
     handleCreateGame(socket);
     handleStartGame(socket);
-    handleNextQuestion(socket);
+    handleForceEndGame(socket);
     handleJoinGame(socket);
     handleSubmitAnswer(socket);
+    handleLeaveEarly(socket);
     handleDisconnect(socket);
   });
 };
- //# sourceMappingURL=index.js.map
