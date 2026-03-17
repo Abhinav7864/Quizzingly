@@ -1,51 +1,70 @@
-### **Game Hosting Overview**
+# Quizzingly - Live AI Quiz Platform
 
-The page at `https://quizzingly-frontend.onrender.com/host/XRY2W4` serves as the **Live Host Engine**. It manages the real-time state of the game session identified by the code `XRY2W4`.
+Quizzingly is a real-time, interactive web application designed for live multiplayer quizzes with AI-assisted content creation. The system allows creators to generate quizzes from text or PDFs and host live sessions where players compete in real-time.
 
-### **Host Lifecycle & Components**
+---
 
-The host interface transitions through four distinct views based on the game's progress:
+## 🚀 Core Modules
 
-#### **1. Game Lobby**
+### 1. Creator Hub
+* **AI Quiz Generation**: Effortlessly generate quiz content from PDFs or raw text using integrated AI endpoints.
+* **Manual Review & Editor**: A dedicated UI allows hosts to review, edit, and refine AI-generated questions before persisting them to the database.
 
-* **Purpose**: This is the initial state where the host waits for players to join.
-* **Key Features**:
-* **Join Code**: Displays the unique `XRY2W4` code in a large, bold format for players to see.
-* **Player List**: A real-time grid that updates as players join the session.
-* **Start Game Button**: The host can trigger the start of the game once at least one player has joined.
+### 2. Live Host Engine
+The Host Engine serves as the live control center for a game session, managing the real-time state via a unique join code. The interface transitions through a four-stage lifecycle:
 
+* **Game Lobby**: The initial state where the host displays the join code and monitors the real-time player list as participants join.
+* **Question View**: Displays the active question, all possible options, and a "Response Tracker" that shows how many players have submitted their answers.
+* **Leaderboard View**: Shows live standings between questions, ranking players by their current score and highlighting the leader with a trophy icon.
+* **Game Over View**: Summarizes the final results with a podium for the top 5 players and provides options to host again or return to the dashboard.
 
+### 3. Player Controller
+* **Mobile-First Design**: A responsive interface optimized for players to join rooms, view questions, and submit answers on any device.
+* **Speed-Based Scoring**: Points are calculated based on both accuracy and the speed of the response.
 
-#### **2. Question View**
+---
 
-* **Purpose**: Displays the active question being answered by players.
-* **Key Features**:
-* **Live Status**: Shows an animated "Question Live" indicator.
-* **Response Tracker**: Displays a progress bar and counter showing how many players have submitted answers (e.g., "3 / 5").
-* **Question Content**: Shows the question text and all possible options (A, B, C, D).
+## 🛠️ Technical Stack & Integration
 
+### Frontend
+* **Framework**: Next.js 16.1.6 and React 19.2.3.
+* **Styling**: Tailwind CSS for responsive design and Framer Motion for smooth UI transitions.
+* **State Management**: Utilizes a **GameContext (Zustand)** to maintain the live player list and current question state across the application.
 
+### Backend
+* **Environment**: Node.js with Express 5.2.1.
+* **Real-Time Communication**: Built with **Socket.IO** to handle critical live events like `onPlayerListUpdate`, `onNewQuestion`, and `onAnswerSubmitted`.
+* **Database**: PostgreSQL managed via **Prisma ORM**.
+* **AI Integration**: Powered by the Gemini API and Groq SDK for content generation.
+* **Authentication**: Secure user access via JWT and Bcrypt.
 
-#### **3. Leaderboard View**
+---
 
-* **Purpose**: Displays the current rankings between questions.
-* **Key Features**:
-* **Live Standings**: Ranks players by their current score, highlighted with a trophy icon for the leader.
-* **Next Question**: A button for the host to manually progress the game to the next question.
+## 📊 Database Schema
 
+The platform uses a relational PostgreSQL schema to manage complex game states:
+* **User**: Stores creator profiles and links to their quizzes and game results.
+* **Quiz & Question**: Manages the quiz structure, including time limits and multiple-choice options.
+* **Game**: Tracks active session status (lobby, active, finished), join codes, and timing.
+* **Player**: Manages individual participant sessions, scores, and real-time socket connections.
+* **PlayerGameResult**: Persists final session data, including player ranks and accuracy metrics.
 
+---
 
-#### **4. Game Over View**
+## 💻 Installation & Setup
 
-* **Purpose**: Summarizes the final results of the session.
-* **Key Features**:
-* **Final Podium**: Lists the top 5 players and their final scores.
-* **Actions**: The host can return to the **Dashboard** or choose to **Host Again** (which reloads the session).
+1.  **Clone the repository.**
+2.  **Backend Configuration**:
+    * Install dependencies: `npm install`.
+    * Set up your `.env` file with `DATABASE_URL`, `JWT_SECRET`, and AI API keys.
+    * Generate the Prisma client: `npx prisma generate`.
+3.  **Frontend Configuration**:
+    * Navigate to `/frontend` and install dependencies: `npm install`.
+4.  **Running the Application**:
+    * Start the backend: `npm run dev`.
+    * Start the frontend: `npm run dev`.
 
-
-
-### **Technical Integration**
-
-* **Socket.IO**: The page uses a WebSocket connection to handle real-time events such as `onPlayerListUpdate`, `onNewQuestion`, and `onAnswerSubmitted`.
-* **State Management**: It utilizes a `GameContext` (Zustand) to maintain the list of players and the current question state across the application.
-* **Navigation Security**: If the socket connection fails or is not initialized, the host is automatically redirected back to the `/dashboard`.
+## 🌐 Deployment
+* **Frontend**: Hosted on Vercel.
+* **Backend & Sockets**: Deployed on Render or Railway to support persistent WebSocket connections.
+* **Database**: Managed through Supabase or MongoDB Atlas.
