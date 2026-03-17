@@ -125,11 +125,6 @@ export default function DashboardPage() {
             <p className="text-[14px] text-[#6B6B6B] font-medium max-w-xs mb-8">
               Start building your collection of quizzes and host live sessions for your audience.
             </p>
-            <Link href="/quiz/new">
-              <Button size="lg">
-                <Plus size={18} strokeWidth={2.5} /> New Quiz
-              </Button>
-            </Link>
           </motion.div>
         )}
       </div>

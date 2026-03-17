@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { LayoutDashboard, LogOut } from 'lucide-react';
+import { LayoutDashboard, LogOut, PlusSquare } from 'lucide-react';
 
 export const Header = () => {
   const pathname = usePathname();
@@ -14,7 +14,10 @@ export const Header = () => {
 
   const navLinks = [
     ...(isAuthenticated
-      ? [{ name: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard size={14} /> }]
+      ? [
+          { name: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard size={18} /> },
+          { name: 'New Quiz', href: '/quiz/new', icon: <PlusSquare size={18} /> },
+        ]
       : [
           { name: 'Features', href: '#features', icon: null },
           { name: 'How it Works', href: '#how-it-works', icon: null },
@@ -39,7 +42,7 @@ export const Header = () => {
             <Link
               key={link.name}
               href={link.href}
-              className={`flex items-center gap-1.5 hover:text-[#F55CA7] transition-colors ${
+              className={`flex items-center gap-2 hover:text-[#F55CA7] transition-all hover:-translate-y-0.5 ${
                 pathname === link.href ? 'text-[#F55CA7]' : ''
               }`}
             >
@@ -49,18 +52,22 @@ export const Header = () => {
           ))}
         </nav>
 
-        {/* CTA Buttons */}
+        {/* CTA / User Profile - Right Side */}
         <div className="flex gap-4 items-center">
           {!isLoading && (
             <>
               {isAuthenticated ? (
                 <div className="flex items-center gap-4">
-                  <span className="hidden md:block font-bold text-[#1E1E1E]">
+                  <div className="hidden md:flex items-center gap-2 bg-white border-2 border-black px-3 py-1.5 rounded-lg shadow-[2px_2px_0px_black] font-bold text-[#1E1E1E]">
+                    <div className="w-6 h-6 bg-[#F55CA7] rounded-full border border-black flex items-center justify-center text-white text-xs">
+                      {(user?.username?.[0] || user?.email?.[0] || 'U').toUpperCase()}
+                    </div>
                     {user?.username || user?.email?.split('@')[0]}
-                  </span>
+                  </div>
+
                   <button
                     onClick={logout}
-                    className="p-2 rounded-lg border-2 border-transparent text-[#6B6B6B] hover:border-[#EF4444] hover:bg-[#EF4444]/10 hover:text-[#EF4444] transition-all"
+                    className="bg-white p-2 rounded-lg border-2 border-black shadow-[2px_2px_0px_black] hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_black] hover:bg-[#EF4444] hover:text-white transition-all text-[#1E1E1E]"
                     title="Sign out"
                   >
                     <LogOut size={18} />
