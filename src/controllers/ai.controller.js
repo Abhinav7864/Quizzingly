@@ -54,33 +54,61 @@ function extractVideoId(urlOrId) {
 
 /** Fetch a YouTube transcript using youtubei.js (Innertube API) */
 async function fetchYouTubeTranscript(url) {
+  const videoId = extractVideoId(url);
+
   try {
-    const videoId = extractVideoId(url);
     const yt = await Innertube.create({ generate_session_locally: true });
     const info = await yt.getInfo(videoId);
 
-    const transcriptData = await info.getTranscript();
-    const segments = transcriptData?.transcript?.content?.body?.initial_segments;
-
-    if (!segments || segments.length === 0) {
-      throw new Error('No transcript available for this video.');
+    // ── Method 1: transcript panel (only available on some videos) ────────────
+    try {
+      const transcriptData = await info.getTranscript();
+      const segments = transcriptData?.transcript?.content?.body?.initial_segments;
+      if (segments && segments.length > 0) {
+        const fullText = segments
+          .map(s => s?.snippet?.text || '')
+          .join(' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        return `YouTube Video Transcript:\n${fullText.substring(0, 15000)}`;
+      }
+    } catch (e) {
+      console.log('Transcript panel not available, trying caption tracks...', e.message);
     }
 
-    const fullText = segments
-      .map(s => s?.snippet?.text || '')
+    // ── Method 2: fetch caption track directly (works for most CC videos) ─────
+    const captionTracks = info.captions?.caption_tracks;
+    if (!captionTracks || captionTracks.length === 0) {
+      throw new Error('No captions available for this video.');
+    }
+
+    // Prefer English, fall back to whatever is first
+    const track =
+      captionTracks.find(t => t.language_code?.startsWith('en')) ||
+      captionTracks[0];
+
+    const captionRes = await fetch(`${track.base_url}&fmt=json3`);
+    const captionData = await captionRes.json();
+
+    const fullText = (captionData.events || [])
+      .filter(e => e.segs)
+      .flatMap(e => e.segs.map(s => s.utf8 || ''))
       .join(' ')
       .replace(/\s+/g, ' ')
       .trim();
 
-    return `YouTube Video Transcript (truncated):\n${fullText.substring(0, 15000)}`;
+    if (!fullText) throw new Error('No captions available for this video.');
+
+    return `YouTube Video Transcript:\n${fullText.substring(0, 15000)}`;
+
   } catch (error) {
     console.error('YouTube transcript fetch failed:', error);
     const msg = error?.message || '';
 
-    if (msg.includes('No transcript')) {
+    if (msg.toLowerCase().includes('no captions') || msg.toLowerCase().includes('no transcript')) {
       throw new Error(
-        'This YouTube video does not have a transcript available. ' +
-        'Try a video that has captions/subtitles enabled.'
+        'This YouTube video does not have captions/transcript available. ' +
+        'Try a video that has CC or auto-generated subtitles enabled.'
       );
     }
 
