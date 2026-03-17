@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { initializeSocket, emitJoinGame } from '@/lib/socket';
 import { useGameStore } from '@/context/GameContext';
 import { motion } from 'framer-motion';
-import { Zap, BarChart3, Users } from 'lucide-react';
+import { Zap, BarChart3, Users, FileText, Youtube, Image as ImageIcon } from 'lucide-react';
 
 export default function HomePage() {
   const { isAuthenticated, user } = useAuth();
@@ -69,19 +69,26 @@ export default function HomePage() {
             </div>
 
             {/* Editorial Headline */}
-            <h1 className="text-5xl md:text-7xl font-black text-[#1E1E1E] leading-[1.1] tracking-tight">
-              Best{' '}
-              <span className="bg-[#F55CA7] text-white px-3 py-1 rounded-lg border-2 border-black inline-block transform rotate-1 shadow-[4px_4px_0px_black]">
-                AI Platform
+            <h1 className="text-5xl md:text-8xl font-black text-[#1E1E1E] leading-[1] tracking-tighter">
+              Convert{' '}
+              <span className="bg-[#A8E6CF] px-3 py-1 rounded-lg border-2 border-black inline-block transform -rotate-1 shadow-[4px_4px_0px_black]">
+                PDFs,
               </span>
               <br />
-              To Convert Docs
+              <span className="bg-[#FFD166] px-3 py-1 rounded-lg border-2 border-black inline-block transform rotate-1 shadow-[4px_4px_0px_black] my-2">
+                YouTube
+              </span>
+              {' '}&{' '}
+              <span className="bg-[#FFD1DD] px-3 py-1 rounded-lg border-2 border-black inline-block transform -rotate-1 shadow-[4px_4px_0px_black]">
+                Images
+              </span>
               <br />
-              To Quizzes.
+              Into Quizzes.
             </h1>
 
-            <p className="text-xl text-[#6B6B6B] font-medium max-w-lg leading-relaxed">
-              Generate engaging real-time quizzes in seconds from your notes or PDFs. Challenge your friends and climb the leaderboard.
+            <p className="text-xl md:text-2xl text-[#6B6B6B] font-bold max-w-2xl leading-tight">
+              The ultimate AI workspace to turn your notes, videos, and snaps into multiplayer quiz battles in seconds. 
+              <span className="text-[#1E1E1E] block mt-2">Zero effort. Max engagement. 🚀</span>
             </p>
 
             {/* CTA Buttons */}
@@ -199,40 +206,105 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Features ─────────────────────────────────────── */}
-      {!isAuthenticated && (
-        <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t-2 border-black">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-black text-[#1E1E1E] tracking-tight">Why Quizzingly?</h2>
-            <p className="text-[#6B6B6B] font-medium mt-3 text-lg">Everything you need for an amazing quiz session.</p>
+      {/* ── AI Powerhouse Features ───────────────────────── */}
+      <section id="ai-features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t-2 border-black bg-white/50 relative overflow-hidden">
+        {/* Abstract background blobs */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#F55CA7]/5 rounded-full blur-3xl -z-10" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#C9B1FF]/10 rounded-full blur-3xl -z-10" />
+
+        <div className="text-center mb-16 px-4">
+          <div className="inline-block bg-[#F55CA7] border-2 border-black shadow-[4px_4px_0px_black] px-5 py-2 font-black text-sm text-white rounded-full mb-6 transform hover:scale-105 transition-transform cursor-default">
+            🧠 NEXT-GEN AI CAPABILITIES
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { icon: <Zap size={22} className="fill-current" />, title: 'AI Generation', desc: 'Upload a PDF or provide a prompt to generate complete quizzes in seconds.', color: '#FFD166' },
-              { icon: <Users size={22} />, title: 'Live Multiplayer', desc: 'Host real-time sessions with dozens of players simultaneously.', color: '#A8E6CF' },
-              { icon: <BarChart3 size={22} />, title: 'Smart Insights', desc: 'Track performance with instant leaderboards and session summaries.', color: '#C9B1FF' },
-            ].map((feature, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 * i, duration: 0.4 }}
-                className="flex flex-col items-center text-center p-8 bg-white border-2 border-black rounded-xl shadow-[6px_6px_0px_black] hover:-translate-y-1 hover:shadow-[8px_8px_0px_black] transition-all"
+          <h2 className="text-4xl md:text-6xl font-black text-[#1E1E1E] tracking-tight leading-tight">
+            Turn Any Content Into <br />
+            <span className="text-[#F55CA7]">Dynamic Quizzes</span>
+          </h2>
+          <p className="text-[#6B6B6B] font-bold mt-6 text-xl max-w-2xl mx-auto italic">
+            "Your content is the syllabus; our AI is the examiner."
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {[
+            { 
+              icon: <FileText size={24} />, 
+              title: 'PDF to Quiz', 
+              desc: 'Upload textbooks, research papers, or meeting notes. Our AI digests long-form text and extracts core concepts.',
+              color: '#A8E6CF',
+              tag: 'QUICK'
+            },
+            { 
+              icon: <Youtube size={24} />, 
+              title: 'YouTube Sessions', 
+              desc: 'Paste a video URL. We fetch the transcript and generate questions based on exactly what was said.',
+              color: '#FFD166',
+              tag: 'NEW'
+            },
+            { 
+              icon: <ImageIcon size={24} />, 
+              title: 'Vision Intelligence', 
+              desc: 'Snapshot a whiteboard, a chart, or a printed page. Our Vision AI "sees" the data and turns it into challenges.',
+              color: '#FFD1DD',
+              tag: 'SMART'
+            },
+            { 
+              icon: <Zap size={24} />, 
+              title: 'Custom Prompting', 
+              desc: 'Describe your topic and difficulty. Generate up to 50 questions with precision-tuned time limits.',
+              color: '#C9B1FF',
+              tag: 'FRESH'
+            },
+          ].map((feature, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 * i, duration: 0.5, ease: "easeOut" }}
+              className="group relative bg-white border-2 border-black p-8 rounded-2xl shadow-[8px_8px_0px_black] hover:-translate-y-2 hover:shadow-[12px_12px_0px_black] transition-all"
+            >
+              <div className="absolute -top-3 -right-3 px-3 py-1 bg-white border-2 border-black rounded-lg text-[10px] font-black tracking-widest uppercase shadow-[2px_2px_0px_black] z-10">
+                {feature.tag}
+              </div>
+              
+              <div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-8 border-2 border-black shadow-[4px_4px_0px_black] transform group-hover:rotate-6 transition-transform"
+                style={{ background: feature.color }}
               >
-                <div
-                  className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 border-2 border-black shadow-[3px_3px_0px_black]"
-                  style={{ background: feature.color }}
-                >
-                  {feature.icon}
-                </div>
-                <h3 className="text-[17px] font-black text-[#1E1E1E] mb-3 tracking-tight">{feature.title}</h3>
-                <p className="text-[14px] text-[#6B6B6B] leading-relaxed">{feature.desc}</p>
-              </motion.div>
+                {feature.icon}
+              </div>
+              
+              <h3 className="text-xl font-black text-[#1E1E1E] mb-4 tracking-tight group-hover:text-[#F55CA7] transition-colors">
+                {feature.title}
+              </h3>
+              
+              <p className="text-[15px] text-[#6B6B6B] font-medium leading-relaxed">
+                {feature.desc}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Social Proof / Stats ─────────────────────────── */}
+      <section className="bg-[#1E1E1E] py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center text-white">
+            {[
+              { label: 'AI Quizzes Generated', val: '10k+' },
+              { label: 'Active Players', val: '50k+' },
+              { label: 'Success Rate', val: '99.9%' },
+              { label: 'Average Time', val: '15s' },
+            ].map((stat, i) => (
+              <div key={i} className="space-y-1">
+                <div className="text-3xl md:text-5xl font-black text-[#FFD166]">{stat.val}</div>
+                <div className="text-[11px] font-bold text-white/60 uppercase tracking-widest">{stat.label}</div>
+              </div>
             ))}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
     </div>
   );

@@ -65,7 +65,7 @@ model Quiz {
 model Question {
   id        String   @id @default(uuid())
   text      String
-  timeLimit Int      @default(20)
+  timeLimit Int      @default(15)
   quizId    String
   quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
   options   Option[]

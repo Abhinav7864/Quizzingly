@@ -3,7 +3,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 const require = createRequire(import.meta.url);
 const pdf = require("pdf-parse");
-const { Groq } = require("groq-sdk");
+import { Groq } from "groq-sdk";
+import { YoutubeTranscript } from 'youtube-transcript/dist/youtube-transcript.esm.js';
 import prisma from "../db/prisma.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,189 +14,224 @@ if (process.env.NODE_ENV !== "production") {
   dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 }
 
+// ── helpers ──────────────────────────────────────────────────────────────────
+
+/** Extract plain text from a PDF buffer */
+async function parsePDF(buffer) {
+  if (pdf && pdf.PDFParse) {
+    const parser = new pdf.PDFParse({ data: buffer });
+    const result = await parser.getText();
+    if (parser.destroy) await parser.destroy();
+    return result.text;
+  } else if (typeof pdf === "function") {
+    const data = await pdf(buffer);
+    return data.text;
+  } else if (pdf && pdf.default && typeof pdf.default === "function") {
+    const data = await pdf.default(buffer);
+    return data.text;
+  }
+  throw new Error("No valid PDF parsing function found in module");
+}
+
+/** Convert an image buffer to a base64 data-URI (for vision models) */
+function imageToDataURI(buffer, mimetype) {
+  return `data:${mimetype};base64,${buffer.toString("base64")}`;
+}
+
+/** Fetch a YouTube transcript and return it as a single string */
+async function fetchYouTubeTranscript(url) {
+  try {
+    const transcript = await YoutubeTranscript.fetchTranscript(url);
+    if (!transcript || transcript.length === 0) {
+      throw new Error("No transcript available for this video.");
+    }
+    // Join all transcript parts into one text block
+    const fullText = transcript.map(part => part.text).join(' ');
+    // Limit to 15k chars to stay within context limits
+    return `YouTube Video Transcript (truncated):\n${fullText.substring(0, 15000)}`;
+  } catch (error) {
+    console.error("YouTube transcript fetch failed:", error);
+    throw new Error("Failed to fetch video transcript. Some videos have transcripts disabled or are restricted.");
+  }
+}
+
+// ── main handler ──────────────────────────────────────────────────────────────
+
 export const generateQuizAI = async (req, res) => {
   console.log("--- Generate Quiz AI Started ---");
-  console.log("Available Env Keys:", Object.keys(process.env).filter(k => !k.includes("SECRET") && !k.includes("KEY")));
-  console.log("Initializing Groq API...");
   const userId = req.user.id;
-  const { prompt } = req.body;
-  const file = req.file;
+  const { prompt, youtubeUrl, timeLimit, numQuestions } = req.body;
+  const resolvedTimeLimit = parseInt(timeLimit) || 15;
+  const resolvedNumQuestions = Math.min(parseInt(numQuestions) || 25, 50);
 
-  if (!prompt) {
-    return res.status(400).json({ message: "Prompt is required" });
+  const files = req.files || {};
+  const pdfFile = files.pdf?.[0] || null;
+  const imageFile = files.image?.[0] || null;
+
+  // Validate: must provide at least one source
+  if (!prompt && !youtubeUrl && !pdfFile && !imageFile) {
+    return res.status(400).json({ message: "Please provide at least a prompt, a PDF, an image, or a YouTube URL." });
   }
 
-  if (!file) {
-    return res.status(400).json({ message: "PDF file is required" });
+  // ── Build context string ──────────────────────────────────────────────────
+  let contextParts = [];
+  let imageDataURI = null;
+
+  // 1) PDF
+  if (pdfFile) {
+    try {
+      const pdfText = await parsePDF(pdfFile.buffer);
+      if (pdfText && pdfText.trim().length > 0) {
+        contextParts.push(`=== PDF CONTENT ===\n${pdfText.substring(0, 20000)}`);
+      } else {
+        return res.status(400).json({ message: "Could not extract text from PDF (it may be empty or image-based)." });
+      }
+    } catch (err) {
+      console.error("PDF parsing error:", err);
+      return res.status(500).json({ message: "Failed to parse PDF: " + err.message });
+    }
+  }
+
+  // 2) Image → pass as base64 to vision-capable model
+  if (imageFile) {
+    imageDataURI = imageToDataURI(imageFile.buffer, imageFile.mimetype);
+    contextParts.push("=== IMAGE ===\n[An image has been provided. Use its content to generate questions.]");
+  }
+
+  // 3) YouTube URL
+  if (youtubeUrl) {
+    try {
+      const ytContext = await fetchYouTubeTranscript(youtubeUrl);
+      contextParts.push(`=== YOUTUBE VIDEO ===\n${ytContext}`);
+    } catch (err) {
+      console.error("YouTube URL error:", err);
+      return res.status(400).json({ message: err.message });
+    }
+  }
+
+  // 4) Prompt / topic
+  if (prompt) {
+    contextParts.push(`=== USER INSTRUCTIONS / TOPIC ===\n${prompt}`);
+  }
+
+  const context = contextParts.join("\n\n");
+
+  // ── Groq setup ────────────────────────────────────────────────────────────
+  let apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) return res.status(500).json({ message: "Groq API key not configured on server." });
+  if (typeof apiKey !== "string") apiKey = String(apiKey);
+
+  const groq = new Groq.Groq(apiKey);
+
+  // Choose model: use vision model only when an image is present
+  const model = imageDataURI ? "meta-llama/llama-4-scout-17b-16e-instruct" : "llama-3.1-8b-instant";
+
+  // ── Build AI prompt ───────────────────────────────────────────────────────
+  const systemPrompt = `You are an expert quiz creator. Your job is to generate comprehensive, accurate, and engaging multiple-choice quiz questions from the provided source material.
+
+CRITICAL CONSTRAINT: 
+- You MUST generate EXACTLY ${resolvedNumQuestions} questions. No more, no less.
+- Count the questions carefully before returning the response.
+
+Rules:
+- Each question must have EXACTLY 4 answer options.
+- Exactly ONE option per question must be correct (isCorrect: true); the other three must be false.
+- Questions must cover the breadth of the material provided — do not repeat topics.
+- Return ONLY a valid JSON object with no markdown fences, no commentary, no extra text.
+
+JSON structure:
+{
+  "title": "Quiz Title",
+  "questions": [
+    {
+      "text": "Question?",
+      "options": [
+        { "text": "Correct", "isCorrect": true },
+        { "text": "Wrong", "isCorrect": false },
+        { "text": "Wrong", "isCorrect": false },
+        { "text": "Wrong", "isCorrect": false }
+      ]
+    }
+  ]
+}`;
+
+  const userMessage = `Generate a quiz with EXACTLY ${resolvedNumQuestions} questions from the following source material. Ensure the question count is strictly ${resolvedNumQuestions}:\n\n${context}`;
+
+  // ── Messages array (supports vision) ─────────────────────────────────────
+  let messages;
+  if (imageDataURI) {
+    messages = [
+      { role: "system", content: systemPrompt },
+      {
+        role: "user",
+        content: [
+          { type: "text", text: userMessage },
+          { type: "image_url", image_url: { url: imageDataURI } },
+        ],
+      },
+    ];
+  } else {
+    messages = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userMessage },
+    ];
   }
 
   try {
-    console.log("Parsing PDF...");
-    const dataBuffer = file.buffer;
-    
-    let pdfText = "";
-    try {
-      // For pdf-parse v2.4.5+, it's a class-based API
-      if (pdf && pdf.PDFParse) {
-        console.log("Using modern PDFParse class API");
-        const parser = new pdf.PDFParse({ data: dataBuffer });
-        const result = await parser.getText();
-        pdfText = result.text;
-        // Clean up resources if needed
-        if (parser.destroy) await parser.destroy();
-      } else if (typeof pdf === 'function') {
-        console.log("Using legacy functional PDF parse API");
-        const pdfData = await pdf(dataBuffer);
-        pdfText = pdfData.text;
-      } else if (pdf && pdf.default && typeof pdf.default === 'function') {
-        console.log("Using legacy functional PDF parse API (.default)");
-        const pdfData = await pdf.default(dataBuffer);
-        pdfText = pdfData.text;
-      } else {
-        throw new Error("No valid PDF parsing function found in module");
-      }
-    } catch (parseError) {
-      console.error("PDF Parsing error:", parseError);
-      return res.status(500).json({ message: "Failed to parse PDF content: " + parseError.message });
-    }
-
-    if (!pdfText || pdfText.trim().length === 0) {
-      return res.status(400).json({ message: "Could not extract text from PDF (it might be empty or image-based)" });
-    }
-
-    if (!pdfText || pdfText.trim().length === 0) {
-      return res.status(400).json({ message: "Could not extract text from PDF" });
-    }
-
-  console.log("Initializing Groq API...");
-    let apiKey = process.env.GROQ_API_KEY;
-    
-    if (!apiKey) {
-      console.error("Groq API Key is missing!");
-      return res.status(500).json({ message: "Groq API key not configured on server" });
-    }
-
-    if (typeof apiKey !== 'string') {
-      apiKey = String(apiKey);
-    }
-    
-    console.log("API Key type:", typeof apiKey);
-    console.log("API Key length:", apiKey.length);
-    console.log("Using API Key (first 5 chars):", apiKey.slice(0, 5));
-    const groq = new Groq.Groq(apiKey);
-    
-    console.log("Getting generative model...");
-    const model = "llama-3.1-8b-instant";
-
-    console.log("Preparing AI Prompt with PDF text length:", pdfText.length);
-    const aiPrompt = `
-      Generate a quiz based on the following text extracted from a PDF:
-      --- PDF TEXT START ---
-      ${pdfText.substring(0, 15000)}
-      --- PDF TEXT END ---
-
-      User's additional instructions: ${prompt}
-
-      Return the response strictly as a JSON object with the following structure:
-      {
-        "title": "Quiz Title (based on the content)",
-        "questions": [
-          {
-            "text": "Question Text",
-            "options": [
-              { "text": "Option Text", "isCorrect": true },
-              { "text": "Option Text", "isCorrect": false },
-              { "text": "Option Text", "isCorrect": false },
-              { "text": "Option Text", "isCorrect": false }
-            ]
-          }
-        ]
-      }
-      
-      Important: 
-      - Provide exactly 4 options per question.
-      - Ensure only one option is correct.
-      - Return ONLY the JSON, no other text or formatting blocks.
-    `;
-
-    console.log("Calling Groq chat completion...");
+    console.log(`Calling Groq (model: ${model}) with context length: ${context.length}`);
     const chatCompletion = await groq.chat.completions.create({
-      messages: [{ role: "user", content: aiPrompt }],
-      model: model,
-      temperature: 0.7,
-      max_tokens: 4096,
+      messages,
+      model,
+      temperature: 0.6,
+      max_tokens: 8192,
     });
-    console.log("Groq chat completion call completed.");
-    
-    let responseText;
-    try {
-      responseText = chatCompletion.choices[0]?.message?.content?.trim() || "";
-      console.log("RAW Groq Response:", responseText);
-    } catch (textError) {
-      console.error("Groq response error:", textError);
-      return res.status(500).json({ 
-        message: "AI response failed. Try a different prompt." 
-      });
-    }
 
-    console.log("AI Response received, parsing...");
-    
-    // Sometimes AI returns JSON wrapped in markdown code blocks
-    const jsonString = responseText.replace(/```json|```/g, "").trim();
-    
+    let responseText = chatCompletion.choices[0]?.message?.content?.trim() || "";
+    console.log("Raw Groq response length:", responseText.length);
+
+    // Strip any accidental markdown fences
+    const jsonString = responseText.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
+
     let quizData;
     try {
       quizData = JSON.parse(jsonString);
       if (!quizData.questions || !Array.isArray(quizData.questions)) {
-        throw new Error("Invalid response format: Missing questions array");
+        throw new Error("Missing questions array in AI response.");
       }
     } catch (parseError) {
-      console.error("Failed to parse Gemini response:", jsonString);
-      return res.status(500).json({ 
-        message: "AI generated an invalid format. Please try again.",
-        error: parseError.message 
-      });
+      console.error("Failed to parse AI response:", jsonString.slice(0, 500));
+      return res.status(500).json({ message: "AI generated an invalid format. Please try again.", error: parseError.message });
     }
 
-    console.log(`Saving generated quiz "${quizData.title}" with ${quizData.questions.length} questions...`);
-    try {
-      const quiz = await prisma.quiz.create({
-        data: {
-          title: quizData.title || "AI Generated Quiz",
-          creatorId: userId,
-          questions: {
-            create: quizData.questions.map((q) => ({
-              text: q.text,
-              options: {
-                create: q.options.map((o) => ({
-                  text: o.text,
-                  isCorrect: o.isCorrect,
-                })),
-              },
-            })),
-          },
-        },
-        include: {
-          questions: {
-            include: {
-              options: true,
+    console.log(`Saving quiz "${quizData.title}" with exactly ${resolvedNumQuestions} questions (trimmed if necessary)...`);
+
+    // STRICT ENFORCEMENT: Slice the array to match user's requested count exactly
+    const finalQuestions = quizData.questions.slice(0, resolvedNumQuestions);
+
+    const quiz = await prisma.quiz.create({
+      data: {
+        title: quizData.title || "AI Generated Quiz",
+        creatorId: userId,
+        questions: {
+          create: finalQuestions.map((q) => ({
+            text: q.text,
+            timeLimit: resolvedTimeLimit,
+            options: {
+              create: q.options.map((o) => ({
+                text: o.text,
+                isCorrect: o.isCorrect,
+              })),
             },
-          },
+          })),
         },
-      });
+      },
+      include: { questions: { include: { options: true } } },
+    });
 
-      console.log("Quiz generated and saved successfully!");
-      res.status(201).json(quiz);
-    } catch (dbError) {
-      console.error("Database error saving AI quiz:", dbError);
-      return res.status(500).json({ 
-        message: "Error saving generated quiz to database.",
-        error: dbError.message 
-      });
-    }
-
+    console.log("Quiz saved successfully:", quiz.id);
+    res.status(201).json(quiz);
   } catch (error) {
     console.error("AI Generation Error:", error);
-    res.status(500).json({ message: "An error occurred during AI quiz generation" });
+    res.status(500).json({ message: "An error occurred during AI quiz generation: " + error.message });
   }
 };

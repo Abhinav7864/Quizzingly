@@ -22,7 +22,7 @@ const initialOptions = [
 
 export const QuestionForm = ({ quizId, questionToEdit, onQuestionSaved, onCancelEdit }: QuestionFormProps) => {
   const [text, setText] = useState('');
-  const [timeLimit, setTimeLimit] = useState<number | string>(20);
+  const [timeLimit, setTimeLimit] = useState<number | string>(15);
   const [options, setOptions] = useState<Partial<Option>[]>(initialOptions);
   
   const { isLoading, exec: saveQuestion } = useApi<Question>();
@@ -39,7 +39,7 @@ export const QuestionForm = ({ quizId, questionToEdit, onQuestionSaved, onCancel
 
   const resetForm = () => {
     setText('');
-    setTimeLimit(20);
+    setTimeLimit(15);
     setOptions(initialOptions);
   };
 

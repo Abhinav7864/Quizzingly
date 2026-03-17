@@ -18,7 +18,7 @@ router.use(requireAuth);
 
 router.post("/", createQuiz);
 router.get("/", getMyQuizzes);
-router.post("/generate-ai", upload.single("pdf"), generateQuizAI);
+router.post("/generate-ai", upload.fields([{ name: "pdf", maxCount: 1 }, { name: "image", maxCount: 1 }]), generateQuizAI);
 router.get("/:id", getQuizById);
 router.put("/:id", updateQuiz);
 router.delete("/:id", deleteQuiz);
