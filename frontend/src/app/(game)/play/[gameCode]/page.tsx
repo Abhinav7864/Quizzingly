@@ -211,7 +211,7 @@ export default function PlayPage() {
                <h2 className="text-2xl font-black uppercase tracking-tight text-[var(--text-primary)]">Game Over</h2>
             </div>
             <PlayerLeaderboard leaderboard={store.gameResult || store.leaderboard} />
-            <Button onClick={() => router.push('/')} fullWidth size="lg" className="h-14 shadow-xl">Replay</Button>
+            <Button onClick={() => router.push('/')} fullWidth size="lg" className="h-14 shadow-xl">Back to Home</Button>
           </div>
         );
       case 'waiting':
@@ -227,23 +227,21 @@ export default function PlayPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-base)] pt-20 pb-16">
-      <div className="w-full max-w-3xl mx-auto px-4 sm:px-6">
-        <div className="w-full max-w-sm mx-auto">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={view}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-            >
-              <Card className="p-7">
-                {renderView()}
-              </Card>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+    <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={view}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+          >
+            <Card className="p-7">
+              {renderView()}
+            </Card>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

@@ -20,7 +20,7 @@ export default function HomePage() {
 
   const handleJoinGame = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!gameCode || (!isAuthenticated && !nickname)) {
+    if (!gameCode || !nickname.trim()) {
       setError('Please provide a game code and your name.');
       return;
     }
@@ -42,10 +42,9 @@ export default function HomePage() {
     });
 
     const payload: { gameCode: string; name?: string; userId?: string } = { gameCode };
-    if (nickname) payload.name = nickname;
-    else if (isAuthenticated && user) {
+    payload.name = nickname;
+    if (isAuthenticated && user) {
       payload.userId = user.id;
-      payload.name = user.username;
     }
     emitJoinGame(payload);
   };
@@ -176,18 +175,16 @@ export default function HomePage() {
                     className="w-full h-20 px-4 text-center text-4xl font-mono font-black tracking-[0.4em] uppercase text-[#1E1E1E] placeholder-[#A0A0A0] bg-white border-2 border-black rounded-xl outline-none focus:border-[#F55CA7] focus:shadow-[4px_4px_0px_#F55CA7] shadow-[4px_4px_0px_black] transition-all"
                   />
                 </div>
-                {!isAuthenticated && (
-                  <div className="space-y-2">
-                    <span className="text-[11px] font-black text-[#6B6B6B] uppercase tracking-[0.2em] ml-1">Your Name</span>
-                    <input
-                      id="nickname"
-                      placeholder="E.g. Captain Quizz"
-                      value={nickname}
-                      onChange={(e) => setNickname(e.target.value)}
-                      className="w-full h-14 px-5 text-[16px] font-bold text-[#1E1E1E] placeholder-[#A0A0A0] bg-white border-2 border-black rounded-xl outline-none focus:border-[#F55CA7] focus:shadow-[4px_4px_0px_#F55CA7] shadow-[4px_4px_0px_black] transition-all"
-                    />
-                  </div>
-                )}
+                <div className="space-y-2">
+                  <span className="text-[11px] font-black text-[#6B6B6B] uppercase tracking-[0.2em] ml-1">Your Name</span>
+                  <input
+                    id="nickname"
+                    placeholder="E.g. Captain Quizz"
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                    className="w-full h-14 px-5 text-[16px] font-bold text-[#1E1E1E] placeholder-[#A0A0A0] bg-white border-2 border-black rounded-xl outline-none focus:border-[#F55CA7] focus:shadow-[4px_4px_0px_#F55CA7] shadow-[4px_4px_0px_black] transition-all"
+                  />
+                </div>
                 {error && <p className="text-[14px] text-[#EF4444] font-bold text-center">{error}</p>}
                 <button
                   type="submit"

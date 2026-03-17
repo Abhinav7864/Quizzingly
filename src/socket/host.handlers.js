@@ -2,15 +2,20 @@ import { redis } from "../redis/client.js";
 import { generateJoinCode } from "./utils.js";
 import prisma from "../db/prisma.js";
 import { sendQuestion } from "./question.flow.js";
+import { randomUUID } from "crypto";
 
 export const handleCreateGame = (socket) => {
-  socket.on("host:create_game", async ({ quizId }) => {
-    console.log(`[HOST] Received create_game request for quizId: ${quizId} from socket: ${socket.id}`);
+  socket.on("host:create_game", async ({ quizId, userId }) => {
+    console.log(`[HOST] Received create_game request for quizId: ${quizId} from socket: ${socket.id} (user: ${userId})`);
     
     const gameCode = generateJoinCode();
 
+    const sessionId = randomUUID();
+
     await redis.hset(`game:${gameCode}`, {
       hostSocketId: socket.id,
+      hostUserId: userId || "",
+      sessionId,
       quizId,
       started: "false",
       currentQuestionIndex: "0",

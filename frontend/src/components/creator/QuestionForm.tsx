@@ -149,7 +149,7 @@ export const QuestionForm = ({ quizId, questionToEdit, onQuestionSaved, onCancel
       </div>
       <div className="flex justify-end gap-3 pt-6 border-t-2 border-black">
         {questionToEdit && (
-          <Button type="button" variant="ghost" onClick={onCancelEdit}>
+          <Button type="button" variant="outline" onClick={onCancelEdit}>
             Cancel Edit
           </Button>
         )}

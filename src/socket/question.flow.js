@@ -35,6 +35,9 @@ export const sendQuestion = async (gameCode) => {
   }, question.timeLimit * 1000);
 };
 export const endGame = async (gameCode) => {
+  // Read game info FIRST before any redis.del calls
+  const gameInfo = await redis.hgetall(`game:${gameCode}`);
+
   const questionsJson = await redis.get(`questions:${gameCode}`);
   const questions = JSON.parse(questionsJson);
 
@@ -86,6 +89,7 @@ export const endGame = async (gameCode) => {
     await prisma.playerGameResult.create({
       data: {
         userId: playerData.userId,
+        sessionId: gameInfo?.sessionId ?? null,
         quizTitle,
         score: entry.score,
         rank,
@@ -98,6 +102,20 @@ export const endGame = async (gameCode) => {
     });
 
     rank++;
+  }
+
+  if (gameInfo && gameInfo.hostUserId && gameInfo.hostUserId !== "") {
+    await prisma.playerGameResult.create({
+      data: {
+        userId: gameInfo.hostUserId,
+        sessionId: gameInfo.sessionId ?? null,
+        quizTitle: `${quizTitle} (Hosted)`,
+        score: 0,
+        rank: 0,
+        totalPlayers: leaderboard.length,
+        accuracy: 0,
+      },
+    });
   }
 
   await redis.del(

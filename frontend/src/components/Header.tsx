@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { LayoutDashboard, LogOut, PlusSquare } from 'lucide-react';
+import { LayoutDashboard, LogOut, PlusSquare, Home } from 'lucide-react';
 
 export const Header = () => {
   const pathname = usePathname();
@@ -15,12 +15,12 @@ export const Header = () => {
   const navLinks = [
     ...(isAuthenticated
       ? [
+          { name: 'Home', href: '/', icon: <Home size={18} /> },
           { name: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard size={18} /> },
           { name: 'New Quiz', href: '/quiz/new', icon: <PlusSquare size={18} /> },
         ]
       : [
-          { name: 'Features', href: '#features', icon: null },
-          { name: 'How it Works', href: '#how-it-works', icon: null },
+          { name: 'Home', href: '/', icon: <Home size={18} /> },
         ]),
   ];
 

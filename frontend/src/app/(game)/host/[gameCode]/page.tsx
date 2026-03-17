@@ -41,7 +41,7 @@ const Lobby = ({ gameCode, players }: { gameCode: string; players: string[] }) =
                   animate={{ opacity: 1, scale: 1 }}
                   className="px-4 py-2 bg-white border-2 border-black rounded-full text-[13px] text-[#1E1E1E] font-bold shadow-[2px_2px_0px_black]"
                 >
-                  {name}
+                  {name || 'Guest'}
                 </motion.span>
               ))}
             </AnimatePresence>
@@ -61,10 +61,25 @@ const QuestionView = ({ question, playersAnswered, totalPlayers }: {
   question: any; playersAnswered: number; totalPlayers: number;
 }) => {
   const colors = ['#EF4444', '#3B82F6', '#F59E0B', '#22C55E'];
+  const [timeLeft, setTimeLeft] = useState(question.timeLimit || 20);
+
+  useEffect(() => {
+    setTimeLeft(question.timeLimit || 20);
+  }, [question]);
+
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+    const t = setInterval(() => setTimeLeft((p: number) => p - 1), 1000);
+    return () => clearInterval(t);
+  }, [timeLeft]);
+
+  const pct = (timeLeft / (question.timeLimit || 20)) * 100;
+  const isLow = timeLeft <= 5;
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between px-6 py-4 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_black]">
+    <div className="space-y-6">
+      {/* Status bar */}
+      <div className="flex items-center justify-between px-5 py-3 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_black]">
         <div className="flex items-center gap-3">
           <div className="relative flex h-3 w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-60" />
@@ -72,29 +87,46 @@ const QuestionView = ({ question, playersAnswered, totalPlayers }: {
           </div>
           <span className="text-[14px] font-bold text-[var(--text-primary)] uppercase tracking-wider">Live</span>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="text-[12px] font-bold text-[var(--text-secondary)] uppercase tracking-wide">Responses</span>
-          <span className="text-2xl font-mono font-black text-[var(--primary)]">
-            {playersAnswered}<span className="text-[var(--text-muted)] text-lg">/{totalPlayers}</span>
-          </span>
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2">
+            <span className="text-[12px] font-bold text-[var(--text-secondary)] uppercase tracking-wide">Responses</span>
+            <span className="text-xl font-mono font-black text-[var(--primary)]">
+              {playersAnswered}<span className="text-[var(--text-muted)] text-base">/{totalPlayers}</span>
+            </span>
+          </div>
+          <div className={`flex items-center gap-2 px-3 py-1 rounded-lg border-2 ${isLow ? 'bg-[#EF4444]/10 border-[#EF4444]' : 'bg-[#F6F6F6] border-black'}`}>
+            <span className={`text-[22px] font-mono font-black tabular-nums ${isLow ? 'text-[#EF4444]' : 'text-[#1E1E1E]'}`}>{timeLeft}s</span>
+          </div>
         </div>
       </div>
 
-      <div className="py-12">
+      {/* Timer bar */}
+      <div className="h-2 bg-white border-2 border-black rounded-full overflow-hidden shadow-[2px_2px_0px_black]">
+        <motion.div
+          className={`h-full ${isLow ? 'bg-[#EF4444]' : 'bg-[var(--primary)]'}`}
+          initial={{ width: '100%' }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 1, ease: 'linear' }}
+        />
+      </div>
+
+      {/* Question text */}
+      <div className="py-10">
         <h2 className="text-3xl md:text-5xl font-bold text-[var(--text-primary)] text-center leading-[1.2]">
           {question.text}
         </h2>
       </div>
 
+      {/* Option cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {question.options.map((opt: any, i: number) => (
           <div
             key={opt.id}
-            className="flex items-center gap-4 p-6 bg-white border-2 border-black rounded-xl transition-all shadow-[4px_4px_0px_black]"
+            className="flex items-center gap-4 p-6 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_black]"
             style={{ borderLeftWidth: '6px', borderLeftColor: colors[i % 4] }}
           >
             <div
-              className="w-8 h-8 rounded-lg text-[14px] font-black text-white flex items-center justify-center shrink-0 shadow-sm"
+              className="w-8 h-8 rounded-lg text-[14px] font-black text-white flex items-center justify-center shrink-0"
               style={{ background: colors[i % 4] }}
             >
               {String.fromCharCode(65 + i)}
@@ -186,12 +218,9 @@ const GameOverView = ({ leaderboard, onDashboard }: { leaderboard: any[]; onDash
       ))}
     </div>
 
-    <div className="flex gap-4">
-      <Button variant="outline" onClick={onDashboard} fullWidth size="lg" className="h-14">
-        Dashboard
-      </Button>
-      <Button onClick={() => window.location.reload()} fullWidth size="lg" className="h-14 gap-3">
-        <Play size={18} fill="currentColor" /> Replay
+    <div className="pt-4">
+      <Button onClick={onDashboard} fullWidth size="lg" className="h-14 text-lg">
+        Back to Dashboard
       </Button>
     </div>
   </div>

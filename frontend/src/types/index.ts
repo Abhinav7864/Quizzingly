@@ -32,12 +32,20 @@ export interface Option {
 export interface PlayerGameResult {
   id: string;
   userId: string;
+  sessionId: string | null;
   quizTitle: string;
   score: number;
   rank: number;
   totalPlayers: number;
   accuracy: number;
   playedAt: string;
+}
+
+export interface SessionPlayer {
+  name: string;
+  score: number;
+  rank: number;
+  accuracy: number;
 }
 
 export interface Player {

@@ -34,3 +34,25 @@ export const getPlayerHistory = async (req, res) => {
 
   res.json(history);
 };
+
+export const getSessionResults = async (req, res) => {
+  const { sessionId } = req.params;
+
+  const results = await prisma.playerGameResult.findMany({
+    where: { sessionId },
+    include: { user: { select: { username: true, email: true } } },
+    orderBy: { score: "desc" },
+  });
+
+  // Exclude the host record (rank === 0) since they didn't play
+  const players = results
+    .filter(r => r.rank !== 0)
+    .map(r => ({
+      name: r.user.username || r.user.email.split('@')[0],
+      score: r.score,
+      rank: r.rank,
+      accuracy: Math.round(r.accuracy * 100),
+    }));
+
+  res.json(players);
+};

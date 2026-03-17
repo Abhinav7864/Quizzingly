@@ -75,8 +75,8 @@ export const disconnectSocket = () => {
 
 // --- Emitter Functions ---
 
-export const emitCreateGame = (quizId: string) => {
-  getSocket().emit('host:create_game', { quizId });
+export const emitCreateGame = (quizId: string, userId?: string) => {
+  getSocket().emit('host:create_game', { quizId, userId });
 };
 
 export const emitStartGame = (gameCode: string) => {

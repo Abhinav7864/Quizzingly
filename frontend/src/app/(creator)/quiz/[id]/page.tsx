@@ -132,12 +132,12 @@ export default function EditQuizPage() {
         <Card className="p-8 mb-8">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard')} className="rounded-full w-10 h-10 px-0">
+              <Button variant="outline" size="sm" onClick={() => router.push('/dashboard')} className="rounded-full w-10 h-10 px-0">
                 <ArrowLeft size={18} />
               </Button>
               <div>
-                <p className="text-[11px] font-black text-[var(--primary)] uppercase tracking-[0.2em] mb-1">Editor</p>
-                <h1 className="text-2xl font-black text-[#1E1E1E] tracking-tight">Edit Quiz</h1>
+                <p className="text-[11px] font-black text-[var(--primary)] uppercase tracking-[0.2em] mb-1">QUIZ BUILDER</p>
+                <h1 className="text-2xl font-black text-[#1E1E1E] tracking-tight">Configure & Build</h1>
               </div>
             </div>
             <div className="flex items-center gap-3">

@@ -84,6 +84,7 @@ model PlayerGameResult {
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  sessionId    String?  // groups all results from the same game session
   quizTitle    String
   score        Int
   rank         Int
@@ -91,4 +92,6 @@ model PlayerGameResult {
   accuracy     Float
 
   playedAt     DateTime @default(now())
+
+  @@index([sessionId])
 }
