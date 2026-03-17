@@ -115,32 +115,68 @@ export default function HomePage() {
             </div>
           </motion.div>
 
-          {/* Right Column — Illustration */}
+          {/* Right Column — Neo-Brutalist UI Stack */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.15 }}
-            className="relative w-full aspect-square max-w-md mx-auto lg:max-w-none"
+            className="relative w-full aspect-square max-w-lg mx-auto lg:max-w-none flex items-center justify-center"
           >
-            <div className="absolute inset-0 bg-[#FFD166] border-4 border-black shadow-[16px_16px_0px_black] rounded-3xl overflow-hidden flex items-center justify-center">
-              <div className="text-center p-8 bg-white m-8 border-2 border-black rounded-2xl w-full h-full flex flex-col items-center justify-center gap-4">
-                <span className="text-7xl block transform hover:scale-110 transition-transform cursor-pointer">🚀</span>
-                <div>
-                  <p className="font-black text-2xl text-[#1E1E1E]">Quiz Illustration</p>
-                  <p className="font-bold text-[#6B6B6B] mt-1 text-sm">Replace with SVG from Storyset</p>
+            {/* Base Decorative Background */}
+            <div className="absolute inset-4 bg-[#C9B1FF] border-4 border-black shadow-[16px_16px_0px_black] rounded-3xl" />
+
+            {/* Layer 1: The "Input" (YouTube/PDF) */}
+            <motion.div 
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-10 left-0 w-3/4 bg-white border-2 border-black p-4 rounded-xl shadow-[8px_8px_0px_black] z-10"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-[#FFD166] border-2 border-black rounded-lg">
+                  <Youtube size={20} />
                 </div>
-                <div className="flex gap-2 flex-wrap justify-center">
-                  {['AI', 'Live', 'Fun'].map(tag => (
-                    <span key={tag} className="px-3 py-1 bg-[#FFD166] border-2 border-black rounded-full text-sm font-black shadow-[2px_2px_0px_black]">
-                      {tag}
-                    </span>
-                  ))}
+                <div className="h-2 w-24 bg-black/10 rounded-full" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-1.5 w-full bg-black/5 rounded-full" />
+                <div className="h-1.5 w-2/3 bg-black/5 rounded-full" />
+              </div>
+            </motion.div>
+
+            {/* Layer 2: The "AI Engine" (Center) */}
+            <motion.div 
+              animate={{ rotate: [0, 2, -2, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#F55CA7] border-4 border-black rounded-full shadow-[0px_0px_40px_rgba(245,92,167,0.4)] z-20 flex items-center justify-center"
+            >
+              <div className="text-center text-white">
+                <Zap size={48} fill="white" className="mx-auto mb-2" />
+                <span className="font-black text-xs uppercase tracking-widest">Processing...</span>
+              </div>
+            </motion.div>
+
+            {/* Layer 3: The "Quiz Card" (Result) */}
+            <motion.div 
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute bottom-10 right-0 w-3/4 bg-white border-2 border-black p-5 rounded-xl shadow-[8px_8px_0px_black] z-30"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] font-black uppercase tracking-tighter bg-[#A8E6CF] px-2 py-1 border border-black rounded shadow-[2px_2px_0px_black]">Question 1/10</span>
+                <div className="flex gap-1">
+                  {[1, 2, 3].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-black/20" />)}
                 </div>
               </div>
-              {/* Floating shapes */}
-              <div className="absolute top-6 left-6 w-10 h-10 bg-white border-2 border-black rounded-full shadow-[2px_2px_0px_black] animate-bounce" />
-              <div className="absolute bottom-10 right-10 w-12 h-12 bg-white border-2 border-black shadow-[4px_4px_0px_black] transform rotate-12" />
-            </div>
+              <p className="font-bold text-sm text-[#1E1E1E] leading-tight mb-4">What is the primary function of Vision AI in Quizzingly?</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="h-8 bg-[#FFD1DD] border-2 border-black rounded-lg" />
+                <div className="h-8 border-2 border-black rounded-lg" />
+              </div>
+            </motion.div>
+
+            {/* Floating Decorative Elements */}
+            <div className="absolute top-0 right-10 w-8 h-8 bg-[#FFD166] border-2 border-black rotate-12 shadow-[4px_4px_0px_black]" />
+            <div className="absolute bottom-20 left-10 w-6 h-6 bg-white border-2 border-black rounded-full shadow-[3px_3px_0px_black]" />
           </motion.div>
         </div>
       </section>
